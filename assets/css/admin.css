@@ -1,6 +1,123 @@
 /**
  * TCM Vendor UI - Admin Styles
- * Reserved for future admin interface styling
+ * Styling for vendor management admin page
  */
 
-/* Admin styles will go here when needed */
+.tcm-vendor-admin {
+    max-width: 1400px;
+}
+
+/* Vendor Table */
+.tcm-vendor-table {
+    margin-top: 20px;
+}
+
+.tcm-vendor-table .column-name {
+    width: 15%;
+}
+
+.tcm-vendor-table .column-logo {
+    width: 30%;
+}
+
+.tcm-vendor-table .column-color {
+    width: 11%;
+}
+
+.vendor-slug {
+    font-size: 12px;
+    color: #666;
+    font-family: monospace;
+    margin-top: 5px;
+}
+
+/* Logo Column */
+.column-logo .regular-text {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.column-logo .tcm-upload-logo {
+    display: block;
+    margin-top: 5px;
+}
+
+.tcm-logo-preview {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    text-align: center;
+}
+
+.tcm-logo-preview img {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Color Pickers */
+.tcm-color-picker {
+    width: 100px;
+}
+
+.wp-picker-container {
+    margin-top: 5px;
+}
+
+/* Info Section */
+.tcm-vendor-info {
+    margin-top: 30px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+}
+
+.tcm-vendor-info h2 {
+    margin-top: 0;
+}
+
+.tcm-vendor-info ul {
+    list-style: disc;
+    padding-left: 20px;
+}
+
+.tcm-vendor-info li {
+    margin-bottom: 8px;
+}
+
+/* Submit Section */
+.submit {
+    margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 1200px) {
+    .tcm-vendor-table .column-logo {
+        width: 25%;
+    }
+
+    .tcm-vendor-table .column-color {
+        width: 12.5%;
+    }
+}
+
+@media screen and (max-width: 782px) {
+    .tcm-vendor-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .tcm-vendor-table .column-name {
+        width: 20%;
+    }
+
+    .tcm-vendor-table .column-logo {
+        width: 30%;
+    }
+
+    .tcm-vendor-table .column-color {
+        width: 10%;
+    }
+}

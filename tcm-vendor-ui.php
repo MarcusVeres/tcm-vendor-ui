@@ -3,7 +3,7 @@
  * Plugin Name: TCM Vendor UI
  * Plugin URI: https://tcmlimited.com
  * Description: Custom UI components for TCM vendor portal including category navigation and user-based styling
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Marcus & Claude
  * Author URI: https://tcmlimited.com
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('TCM_VENDOR_UI_VERSION', '1.0.1');
+define('TCM_VENDOR_UI_VERSION', '1.0.2');
 define('TCM_VENDOR_UI_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_FILE', __FILE__);
@@ -37,6 +37,8 @@ class TCM_Vendor_UI {
      */
     private $user_css;
     private $category_navigator;
+    private $vendor_styles;
+    private $vendor_admin;
 
     /**
      * Constructor
@@ -66,6 +68,22 @@ class TCM_Vendor_UI {
         if (file_exists($navigator_file)) {
             require_once($navigator_file);
             $this->category_navigator = new TCM_Category_Navigator($this);
+        }
+
+        // Load Vendor Styles component
+        $vendor_styles_file = TCM_VENDOR_UI_PLUGIN_DIR . 'includes/class-tcm-vendor-styles.php';
+        if (file_exists($vendor_styles_file)) {
+            require_once($vendor_styles_file);
+            $this->vendor_styles = new TCM_Vendor_Styles($this);
+        }
+
+        // Load Vendor Admin component (admin only)
+        if (is_admin()) {
+            $vendor_admin_file = TCM_VENDOR_UI_PLUGIN_DIR . 'admin/class-tcm-vendor-admin.php';
+            if (file_exists($vendor_admin_file) && isset($this->vendor_styles)) {
+                require_once($vendor_admin_file);
+                $this->vendor_admin = new TCM_Vendor_Admin($this, $this->vendor_styles);
+            }
         }
     }
 
