@@ -1,0 +1,197 @@
+/**
+ * TCM Vendor UI - Dropdown Navigator Admin Styles
+ * Styling for vendor visibility and category settings pages
+ */
+
+.tcm-dropdown-admin {
+    max-width: 1600px;
+}
+
+/* ===========================
+   VENDOR VISIBILITY TABLE
+   =========================== */
+
+/* Table wrapper for horizontal scrolling */
+.tcm-dropdown-table-wrapper {
+    overflow-x: auto;
+    margin-top: 20px;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+}
+
+.tcm-dropdown-table {
+    margin: 0;
+    border: none;
+}
+
+/* Frozen vendor column */
+.tcm-dropdown-table .column-vendor {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 2;
+    width: 180px;
+    min-width: 180px;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Frozen column in thead */
+.tcm-dropdown-table thead .column-vendor {
+    background: #f9f9f9;
+}
+
+/* Category columns */
+.tcm-dropdown-table .column-category {
+    text-align: center;
+    width: 120px;
+    min-width: 120px;
+}
+
+/* Category slug helper text */
+.category-slug {
+    font-size: 11px;
+    color: #666;
+    font-family: monospace;
+    margin-top: 3px;
+    font-weight: normal;
+}
+
+/* Vendor slug helper text */
+.vendor-slug {
+    font-size: 12px;
+    color: #666;
+    font-family: monospace;
+    margin-top: 5px;
+}
+
+/* Center checkboxes */
+.tcm-dropdown-table .column-category input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+/* ===========================
+   CATEGORY SETTINGS TABLE
+   =========================== */
+
+.tcm-category-settings-table {
+    margin-top: 20px;
+}
+
+.tcm-category-settings-table .column-drag {
+    width: 80px;
+    text-align: center;
+    cursor: move;
+}
+
+.tcm-category-settings-table .column-slug {
+    width: 200px;
+}
+
+.tcm-category-settings-table .column-label {
+    width: auto;
+}
+
+/* Drag handle */
+.drag-handle {
+    cursor: move;
+    color: #999;
+    font-size: 20px;
+    vertical-align: middle;
+}
+
+.drag-handle:hover {
+    color: #555;
+}
+
+/* Sortable row styling */
+#tcm-sortable-categories tr {
+    cursor: move;
+    transition: background-color 0.2s;
+}
+
+#tcm-sortable-categories tr:hover {
+    background-color: #f0f0f1;
+}
+
+/* UI Sortable helper (the dragged element) */
+.ui-sortable-helper {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    opacity: 0.9;
+}
+
+/* Placeholder while dragging */
+.ui-sortable-placeholder {
+    background: #e8f4f8;
+    border: 2px dashed #0073aa;
+    visibility: visible !important;
+}
+
+.ui-sortable-placeholder td {
+    visibility: hidden;
+}
+
+/* ===========================
+   INFO SECTION
+   =========================== */
+
+.tcm-dropdown-info {
+    margin-top: 30px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+}
+
+.tcm-dropdown-info h2 {
+    margin-top: 0;
+}
+
+.tcm-dropdown-info ul {
+    list-style: disc;
+    padding-left: 20px;
+}
+
+.tcm-dropdown-info li {
+    margin-bottom: 8px;
+}
+
+/* ===========================
+   SUBMIT SECTION
+   =========================== */
+
+.submit {
+    margin-top: 20px;
+}
+
+/* ===========================
+   RESPONSIVE ADJUSTMENTS
+   =========================== */
+
+@media screen and (max-width: 1200px) {
+    .tcm-dropdown-table .column-vendor {
+        width: 150px;
+        min-width: 150px;
+    }
+
+    .tcm-dropdown-table .column-category {
+        width: 100px;
+        min-width: 100px;
+    }
+}
+
+@media screen and (max-width: 782px) {
+    .tcm-dropdown-table-wrapper {
+        overflow-x: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tcm-category-settings-table .column-drag {
+        width: 60px;
+    }
+
+    .tcm-category-settings-table .column-slug {
+        width: 150px;
+    }
+}

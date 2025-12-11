@@ -132,4 +132,57 @@ jQuery(document).ready(function($) {
         alert('All vendor settings have been reset to defaults. Click "Save All Vendor Settings" to apply changes.');
     });
 
+    /**
+     * Drag-and-Drop Ordering for Categories
+     */
+    if ($('#tcm-sortable-categories').length) {
+        $('#tcm-sortable-categories').sortable({
+            handle: '.drag-handle',
+            placeholder: 'ui-sortable-placeholder',
+            helper: function(e, tr) {
+                const $originals = tr.children();
+                const $helper = tr.clone();
+                $helper.children().each(function(index) {
+                    $(this).width($originals.eq(index).width());
+                });
+                return $helper;
+            },
+            update: function(event, ui) {
+                // Update order values when items are reordered
+                $('#tcm-sortable-categories tr').each(function(index) {
+                    $(this).find('.category-order-input').val(index + 1);
+                });
+            }
+        });
+    }
+
+    /**
+     * Reset Category Defaults Button
+     */
+    $('.tcm-reset-category-defaults').on('click', function(e) {
+        if (!confirm('Are you sure you want to reset all category labels to defaults? This cannot be undone.')) {
+            return;
+        }
+
+        // Default category labels (matching PHP defaults)
+        const defaults = {
+            'bakery-carts': 'Bakery Carts',
+            'cart-models': 'Cart Models',
+            'cart-pushers': 'Cart Pushers',
+            'cart-washers': 'Cart Washers',
+            'corral-carts': 'Corral Carts',
+            'parts-accessories': 'Parts & Accessories',
+            'safety-vests': 'Safety Vests',
+            'shopping-baskets': 'Shopping Baskets',
+            'winter-salt': 'Winter Salt'
+        };
+
+        // Update each category label
+        $.each(defaults, function(slug, label) {
+            $('input[name="tcm_dropdown_categories[' + slug + '][label]"]').val(label);
+        });
+
+        alert('All category labels have been reset to defaults. Click "Save Category Settings" to apply changes.');
+    });
+
 });

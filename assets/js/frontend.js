@@ -5,6 +5,16 @@
 
 jQuery(document).ready(function($) {
 
+    // Check if vendor was detected and settings are available
+    if (typeof tcmDropdownSettings === 'undefined' || !tcmDropdownSettings.vendorDetected) {
+        // Show error alert if vendor detection failed
+        if (typeof tcmDropdownSettings !== 'undefined' && tcmDropdownSettings.errorMessage) {
+            alert(tcmDropdownSettings.errorMessage);
+        }
+        console.error('TCM Dropdown Navigator: Vendor detection failed or settings not loaded');
+        return;
+    }
+
     // Configuration
     const autoSelectParts = false;
     const rootURL = "https://tcmlimited.com/";
@@ -45,11 +55,10 @@ jQuery(document).ready(function($) {
 
     // Generate the category data
     const categoryData = {};
-    const productTypes = [
-        "bakery-carts", "cart-pushers", "ladders", "material-carts",
-        "meat-carts", "mobility-scooters", "produce-carts",
-        "shopping-carts", "specialty-equipment"
-    ];
+
+    // Get visible product types for this vendor from localized settings
+    // tcmDropdownSettings.visibleCategories is an array of category objects with slug, label, order
+    const productTypes = tcmDropdownSettings.visibleCategories.map(cat => cat.slug);
 
     // Array of product types that show Fleet Management
     const fleetManagementEnabled = ["shopping-carts"];

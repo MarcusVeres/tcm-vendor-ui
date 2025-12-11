@@ -105,6 +105,37 @@ class TCM_Vendor_Admin {
     }
 
     /**
+     * Enqueue dropdown admin assets
+     * Used by dropdown admin pages
+     */
+    public static function enqueue_dropdown_admin_assets($hook) {
+        // Only load on dropdown navigator pages
+        if ($hook !== 'toplevel_page_tcm-dropdown-navigator' && $hook !== 'tcm-dropdown-navigator_page_tcm-dropdown-category-settings') {
+            return;
+        }
+
+        // jQuery UI Sortable (for drag-and-drop)
+        wp_enqueue_script('jquery-ui-sortable');
+
+        // Dropdown admin styles
+        wp_enqueue_style(
+            'tcm-dropdown-admin',
+            TCM_VENDOR_UI_PLUGIN_URL . 'assets/css/dropdown-admin.css',
+            array(),
+            TCM_VENDOR_UI_VERSION
+        );
+
+        // Admin script (reuse existing admin.js which now includes drag-drop)
+        wp_enqueue_script(
+            'tcm-vendor-admin',
+            TCM_VENDOR_UI_PLUGIN_URL . 'assets/js/admin.js',
+            array('jquery', 'jquery-ui-sortable'),
+            TCM_VENDOR_UI_VERSION,
+            true
+        );
+    }
+
+    /**
      * Render admin page
      */
     public function render_admin_page() {
