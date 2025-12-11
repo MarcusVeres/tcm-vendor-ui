@@ -1,0 +1,99 @@
+/**
+ * TCM Vendor UI - Frontend Styles
+ * Category Navigator Component
+ */
+
+/* Header Selector Button */
+.header-selector-button,
+a.header-selector-button {
+  height: 40px;
+  line-height: 40px;
+  padding: 0 12px;
+  background: white;
+  color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+  font-weight: bold;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+a.header-selector-button:hover {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Category Navigator Container */
+.category-navigator {
+  display: flex;
+  gap: 20px;
+  margin: 0 auto;
+  padding: 4px 20px;
+  max-width: 1140px !important;
+}
+
+.category-select {
+  flex: 1;
+}
+
+/* Select Dropdowns */
+.category-navigator select {
+  height: 40px;
+  line-height: 40px;
+  padding: 0 8px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: white;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  padding-right: 32px;
+}
+
+.category-navigator label {
+  padding-bottom: 4px;
+  display: none;
+}
+
+/* Contact Message */
+.contact-message {
+  display: none;
+  align-items: center;
+  padding: 4px;
+}
+
+.contact-message a {
+  padding-left: 2px;
+  padding-right: 2px;
+  color: white !important;
+  font-weight: 900;
+}
+
+/* Level 3 Container */
+#level3-container {
+  display: flex;
+}
+
+#level3-container > a,
+#level3-container > div {
+  font-size: 14px;
+}
+
+#level3-select-container {
+  display: block;
+  width: 100%;
+}
+
+/* Mobile Responsive */
+@media screen and (max-width: 580px) {
+    .category-navigator {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
