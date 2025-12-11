@@ -3,7 +3,7 @@
  * Plugin Name: TCM Vendor UI
  * Plugin URI: https://tcmlimited.com
  * Description: Custom UI components for TCM vendor portal including category navigation and user-based styling
- * Version: 1.1.5
+ * Version: 1.1.6
  * Author: Marcus & Claude
  * Author URI: https://tcmlimited.com
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('TCM_VENDOR_UI_VERSION', '1.1.5');
+define('TCM_VENDOR_UI_VERSION', '1.1.6');
 define('TCM_VENDOR_UI_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_FILE', __FILE__);
@@ -39,6 +39,7 @@ class TCM_Vendor_UI {
     private $category_navigator;
     private $vendor_styles;
     private $vendor_admin;
+    private $vendor_debug;
     private $dropdown_settings;
     private $dropdown_vendor_visibility;
     private $dropdown_category_settings;
@@ -86,6 +87,13 @@ class TCM_Vendor_UI {
             if (file_exists($vendor_admin_file) && isset($this->vendor_styles)) {
                 require_once($vendor_admin_file);
                 $this->vendor_admin = new TCM_Vendor_Admin($this, $this->vendor_styles);
+            }
+
+            // Load Vendor Debug component (admin only)
+            $vendor_debug_file = TCM_VENDOR_UI_PLUGIN_DIR . 'admin/class-tcm-vendor-debug.php';
+            if (file_exists($vendor_debug_file)) {
+                require_once($vendor_debug_file);
+                $this->vendor_debug = new TCM_Vendor_Debug($this);
             }
         }
 
