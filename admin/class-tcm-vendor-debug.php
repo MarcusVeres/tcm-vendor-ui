@@ -285,14 +285,14 @@ class TCM_Vendor_Debug {
 
                 <!-- Next Steps -->
                 <div class="notice notice-info">
-                    <h3>Next Steps</h3>
-                    <ol>
-                        <li>Review the B2BKing groups above - these are the ACTUAL groups from your database</li>
-                        <li>Compare with hardcoded vendors - note any mismatches</li>
-                        <li>Decide: Use "Post Name (Slug)" or "Sanitized Slug (Our Method)"?</li>
-                        <li>Update hardcoded vendor slugs to match B2BKing groups</li>
-                        <li>Switch to dynamic group querying</li>
-                    </ol>
+                    <h3>Welcome to the Debug Page!</h3>
+                    <ul>
+                        <li>This page shows you what B2BKing sees when you work with your vendors.</li>
+                        <li>What we call <strong>vendors<strong> is what B2B King calls <strong>groups</strong>.</li>
+                        <li>The <strong>Post Name (Slug)</strong> is not reliable, so we use a <strong>Sanitized Slug</strong> based on the display name (Group Name / Title).</li>
+                        <li>The tables below search B2BKing's database and check if the vendor names match our CSS classes.</li>
+                        <li>This system is used to control what users see (colors, icons) in the TCM Vendors tab.</li>
+                    </ul>
                 </div>
 
             <?php endif; ?>
