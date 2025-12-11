@@ -8,10 +8,23 @@ class TCM_Vendor_Styles {
 
     private $main_plugin;
     private $option_name = 'tcm_vendor_styles';
+    private $b2bking_integration;
 
     public function __construct($main_plugin) {
         $this->main_plugin = $main_plugin;
+        $this->init_b2bking_integration();
         $this->init_hooks();
+    }
+
+    /**
+     * Initialize B2BKing integration
+     */
+    private function init_b2bking_integration() {
+        $integration_file = TCM_VENDOR_UI_PLUGIN_DIR . 'includes/class-tcm-b2bking-integration.php';
+        if (file_exists($integration_file)) {
+            require_once($integration_file);
+            $this->b2bking_integration = new TCM_B2BKing_Integration($this->main_plugin);
+        }
     }
 
     /**
@@ -77,16 +90,17 @@ class TCM_Vendor_Styles {
         // Use false as default to distinguish between "never set" and "set but empty"
         $saved_vendors = get_option($this->option_name, false);
 
+        // Get all available vendors (dynamically from B2BKing or fallback)
+        $available_vendors = $this->get_all_available_vendors();
+
         // Only use defaults on FIRST install (option doesn't exist)
-        // If option exists but is empty array, that's a valid saved state
         if ($saved_vendors === false) {
-            return $this->get_default_vendors();
+            return $available_vendors;
         }
 
-        // Merge saved settings with defaults for any new vendors that might have been added
-        $defaults = $this->get_default_vendors();
-
-        foreach ($defaults as $slug => $default_settings) {
+        // Merge saved settings with available vendors
+        // This ensures new B2BKing groups get added with defaults
+        foreach ($available_vendors as $slug => $default_settings) {
             // If vendor doesn't exist in saved data, add with defaults
             if (!isset($saved_vendors[$slug])) {
                 $saved_vendors[$slug] = $default_settings;
@@ -97,6 +111,33 @@ class TCM_Vendor_Styles {
         }
 
         return $saved_vendors;
+    }
+
+    /**
+     * Get all available vendors (dynamic from B2BKing or fallback)
+     */
+    private function get_all_available_vendors() {
+        // Try to use B2BKing integration
+        if ($this->b2bking_integration && $this->b2bking_integration->is_active()) {
+            return $this->get_vendors_from_b2bking();
+        }
+
+        // Fallback to hardcoded vendors if B2BKing not available
+        return $this->get_default_vendors();
+    }
+
+    /**
+     * Get vendors dynamically from B2BKing
+     */
+    private function get_vendors_from_b2bking() {
+        $vendors = array();
+        $vendor_slugs = $this->b2bking_integration->get_vendor_slugs();
+
+        foreach ($vendor_slugs as $slug) {
+            $vendors[$slug] = $this->b2bking_integration->get_default_vendor_styles($slug);
+        }
+
+        return $vendors;
     }
 
     /**

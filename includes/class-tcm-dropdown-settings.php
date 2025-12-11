@@ -7,10 +7,23 @@
 class TCM_Dropdown_Settings {
 
     private $main_plugin;
+    private $b2bking_integration;
 
     public function __construct($main_plugin) {
         $this->main_plugin = $main_plugin;
+        $this->init_b2bking_integration();
         $this->init_hooks();
+    }
+
+    /**
+     * Initialize B2BKing integration
+     */
+    private function init_b2bking_integration() {
+        $integration_file = TCM_VENDOR_UI_PLUGIN_DIR . 'includes/class-tcm-b2bking-integration.php';
+        if (file_exists($integration_file)) {
+            require_once($integration_file);
+            $this->b2bking_integration = new TCM_B2BKing_Integration($this->main_plugin);
+        }
     }
 
     /**
@@ -77,9 +90,15 @@ class TCM_Dropdown_Settings {
 
     /**
      * Get all vendors (slugs only)
-     * Reuses the vendor list from vendor styles
+     * Dynamically from B2BKing or fallback to hardcoded
      */
     public function get_vendor_slugs() {
+        // Try to use B2BKing integration
+        if ($this->b2bking_integration && $this->b2bking_integration->is_active()) {
+            return $this->b2bking_integration->get_vendor_slugs();
+        }
+
+        // Fallback to hardcoded vendors if B2BKing not available
         return array(
             'administrator',
             'standard-pricing',

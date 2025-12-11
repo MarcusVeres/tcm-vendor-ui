@@ -77,11 +77,35 @@ class TCM_Vendor_Debug {
         $b2b_groups = $this->get_b2bking_groups();
         $hardcoded = $this->get_hardcoded_vendors();
 
+        // Check B2BKing integration status
+        $integration_file = TCM_VENDOR_UI_PLUGIN_DIR . 'includes/class-tcm-b2bking-integration.php';
+        $integration_active = false;
+        $dynamic_vendors = array();
+
+        if (file_exists($integration_file)) {
+            require_once($integration_file);
+            $integration = new TCM_B2BKing_Integration($this->main_plugin);
+            $integration_active = $integration->is_active();
+            if ($integration_active) {
+                $dynamic_vendors = $integration->get_vendors_with_names();
+            }
+        }
+
         ?>
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
 
-            <p>This page shows B2BKing group data to help us transition from hardcoded vendors to dynamic groups.</p>
+            <?php if ($integration_active): ?>
+                <div class="notice notice-success">
+                    <p><strong>✓ B2BKing Integration Active!</strong> Vendors are being loaded dynamically from B2BKing groups.</p>
+                </div>
+            <?php else: ?>
+                <div class="notice notice-warning">
+                    <p><strong>⚠️ B2BKing Integration Inactive.</strong> Using fallback hardcoded vendors.</p>
+                </div>
+            <?php endif; ?>
+
+            <p>This page shows B2BKing group data and current integration status.</p>
 
             <?php if ($b2b_groups === false): ?>
                 <div class="notice notice-error">
@@ -174,6 +198,37 @@ class TCM_Vendor_Debug {
                 </table>
 
                 <br><br>
+
+                <!-- Dynamic Vendors (Current System) -->
+                <?php if ($integration_active && !empty($dynamic_vendors)): ?>
+                    <h2>Current Dynamic Vendors (Active System)</h2>
+                    <p>These are the vendors currently being used by the plugin (loaded from B2BKing):</p>
+                    <table class="wp-list-table widefat fixed striped">
+                        <thead>
+                            <tr>
+                                <th>Vendor Slug</th>
+                                <th>Vendor Name</th>
+                                <th>Source</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($dynamic_vendors as $slug => $name): ?>
+                                <tr>
+                                    <td><code><?php echo esc_html($slug); ?></code></td>
+                                    <td><strong><?php echo esc_html($name); ?></strong></td>
+                                    <td>
+                                        <?php if ($slug === 'administrator'): ?>
+                                            <span style="color: #0073aa;">WordPress Role (special handling)</span>
+                                        <?php else: ?>
+                                            <span style="color: #46b450;">✓ B2BKing Group</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <br><br>
+                <?php endif; ?>
 
                 <!-- Current User Info -->
                 <h2>Current User Info</h2>
