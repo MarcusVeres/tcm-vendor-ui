@@ -74,11 +74,26 @@ class TCM_Vendor_Styles {
      * Get vendor settings (returns saved settings or defaults)
      */
     public function get_vendors() {
-        $saved_vendors = get_option($this->option_name, array());
+        // Use false as default to distinguish between "never set" and "set but empty"
+        $saved_vendors = get_option($this->option_name, false);
 
-        // If no saved settings, return defaults
-        if (empty($saved_vendors)) {
+        // Only use defaults on FIRST install (option doesn't exist)
+        // If option exists but is empty array, that's a valid saved state
+        if ($saved_vendors === false) {
             return $this->get_default_vendors();
+        }
+
+        // Merge saved settings with defaults for any new vendors that might have been added
+        $defaults = $this->get_default_vendors();
+
+        foreach ($defaults as $slug => $default_settings) {
+            // If vendor doesn't exist in saved data, add with defaults
+            if (!isset($saved_vendors[$slug])) {
+                $saved_vendors[$slug] = $default_settings;
+            } else {
+                // If vendor exists, merge to ensure all fields are present
+                $saved_vendors[$slug] = wp_parse_args($saved_vendors[$slug], $default_settings);
+            }
         }
 
         return $saved_vendors;

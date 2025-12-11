@@ -28,12 +28,14 @@ class TCM_Vendor_Admin {
      * Add admin menu
      */
     public function add_admin_menu() {
-        add_options_page(
+        add_menu_page(
             __('TCM Vendors', 'tcm-vendor-ui'),
             __('TCM Vendors', 'tcm-vendor-ui'),
             'manage_options',
             'tcm-vendors',
-            array($this, 'render_admin_page')
+            array($this, 'render_admin_page'),
+            'dashicons-cart',
+            31
         );
     }
 
@@ -74,8 +76,8 @@ class TCM_Vendor_Admin {
      * Enqueue admin assets
      */
     public function enqueue_admin_assets($hook) {
-        // Only load on our settings page
-        if ($hook !== 'settings_page_tcm-vendors') {
+        // Only load on our vendors page (now top-level menu)
+        if ($hook !== 'toplevel_page_tcm-vendors') {
             return;
         }
 
