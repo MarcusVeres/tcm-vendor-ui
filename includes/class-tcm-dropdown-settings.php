@@ -129,11 +129,33 @@ class TCM_Dropdown_Settings {
      * Returns array of vendor => product_type => boolean
      */
     public function get_vendor_visibility() {
-        $saved = get_option('tcm_dropdown_vendor_visibility', array());
+        // Use false as default to distinguish between "never set" and "set but empty"
+        $saved = get_option('tcm_dropdown_vendor_visibility', false);
 
-        // If no saved settings, return defaults (all vendors see all categories)
-        if (empty($saved)) {
+        // Only use defaults on FIRST install (option doesn't exist)
+        // If option exists but is empty array, that's a valid saved state (user unchecked everything)
+        if ($saved === false) {
             return $this->get_default_vendor_visibility();
+        }
+
+        // Merge saved settings with defaults for any new categories that might have been added
+        $defaults = $this->get_default_vendor_visibility();
+        $vendors = $this->get_vendor_slugs();
+        $categories = $this->get_category_settings();
+
+        foreach ($vendors as $vendor_slug) {
+            // If vendor doesn't exist in saved data, add with defaults
+            if (!isset($saved[$vendor_slug])) {
+                $saved[$vendor_slug] = $defaults[$vendor_slug];
+                continue;
+            }
+
+            // Check for new categories and add them with default visibility (true)
+            foreach ($categories as $category_slug => $category_data) {
+                if (!isset($saved[$vendor_slug][$category_slug])) {
+                    $saved[$vendor_slug][$category_slug] = true;
+                }
+            }
         }
 
         return $saved;
