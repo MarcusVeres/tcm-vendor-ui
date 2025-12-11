@@ -32,44 +32,44 @@ class TCM_Dropdown_Settings {
                 'label' => 'Bakery Carts',
                 'order' => 1,
             ),
-            'cart-models' => array(
-                'slug' => 'cart-models',
-                'label' => 'Cart Models',
-                'order' => 2,
-            ),
             'cart-pushers' => array(
                 'slug' => 'cart-pushers',
                 'label' => 'Cart Pushers',
+                'order' => 2,
+            ),
+            'ladders' => array(
+                'slug' => 'ladders',
+                'label' => 'Ladders',
                 'order' => 3,
             ),
-            'cart-washers' => array(
-                'slug' => 'cart-washers',
-                'label' => 'Cart Washers',
+            'material-carts' => array(
+                'slug' => 'material-carts',
+                'label' => 'Material Handling Cart',
                 'order' => 4,
             ),
-            'corral-carts' => array(
-                'slug' => 'corral-carts',
-                'label' => 'Corral Carts',
+            'meat-carts' => array(
+                'slug' => 'meat-carts',
+                'label' => 'Meat Carts',
                 'order' => 5,
             ),
-            'parts-accessories' => array(
-                'slug' => 'parts-accessories',
-                'label' => 'Parts & Accessories',
+            'mobility-scooters' => array(
+                'slug' => 'mobility-scooters',
+                'label' => 'Mobility Scooters',
                 'order' => 6,
             ),
-            'safety-vests' => array(
-                'slug' => 'safety-vests',
-                'label' => 'Safety Vests',
+            'produce-carts' => array(
+                'slug' => 'produce-carts',
+                'label' => 'Produce Carts',
                 'order' => 7,
             ),
-            'shopping-baskets' => array(
-                'slug' => 'shopping-baskets',
-                'label' => 'Shopping Baskets',
+            'shopping-carts' => array(
+                'slug' => 'shopping-carts',
+                'label' => 'Shopping Carts',
                 'order' => 8,
             ),
-            'winter-salt' => array(
-                'slug' => 'winter-salt',
-                'label' => 'Winter Salt',
+            'specialty-equipment' => array(
+                'slug' => 'specialty-equipment',
+                'label' => 'Specialty Equipment',
                 'order' => 9,
             ),
         );

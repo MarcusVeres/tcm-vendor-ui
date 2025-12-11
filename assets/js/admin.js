@@ -164,17 +164,17 @@ jQuery(document).ready(function($) {
             return;
         }
 
-        // Default category labels (matching PHP defaults)
+        // Default category labels (matching PHP defaults and actual category navigator)
         const defaults = {
             'bakery-carts': 'Bakery Carts',
-            'cart-models': 'Cart Models',
             'cart-pushers': 'Cart Pushers',
-            'cart-washers': 'Cart Washers',
-            'corral-carts': 'Corral Carts',
-            'parts-accessories': 'Parts & Accessories',
-            'safety-vests': 'Safety Vests',
-            'shopping-baskets': 'Shopping Baskets',
-            'winter-salt': 'Winter Salt'
+            'ladders': 'Ladders',
+            'material-carts': 'Material Handling Cart',
+            'meat-carts': 'Meat Carts',
+            'mobility-scooters': 'Mobility Scooters',
+            'produce-carts': 'Produce Carts',
+            'shopping-carts': 'Shopping Carts',
+            'specialty-equipment': 'Specialty Equipment'
         };
 
         // Update each category label
