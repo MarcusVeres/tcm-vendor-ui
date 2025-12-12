@@ -39,11 +39,18 @@
 
 .column-logo .tcm-upload-logo {
     display: block;
-    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.tcm-logo-input-group {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
 }
 
 .tcm-logo-preview {
-    margin-top: 10px;
+    margin-bottom: 8px;
+    margin-top: 5px;
     padding: 10px;
     background: #f9f9f9;
     border: 1px solid #ddd;

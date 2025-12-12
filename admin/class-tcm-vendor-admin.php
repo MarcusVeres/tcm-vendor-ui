@@ -189,21 +189,23 @@ class TCM_Vendor_Admin {
 
                                 <!-- Logo URL with Media Uploader -->
                                 <td class="column-logo">
-                                    <input
-                                        type="text"
-                                        name="tcm_vendor_styles[<?php echo esc_attr($slug); ?>][logo_url]"
-                                        value="<?php echo esc_url($settings['logo_url']); ?>"
-                                        class="regular-text tcm-logo-url"
-                                        placeholder="https://..."
-                                    >
-                                    <button type="button" class="button tcm-upload-logo" data-slug="<?php echo esc_attr($slug); ?>">
-                                        <?php _e('Upload', 'tcm-vendor-ui'); ?>
-                                    </button>
                                     <?php if (!empty($settings['logo_url'])): ?>
                                         <div class="tcm-logo-preview">
                                             <img src="<?php echo esc_url($settings['logo_url']); ?>" alt="Logo preview" style="max-width: 100px; max-height: 50px; margin-top: 5px;">
                                         </div>
                                     <?php endif; ?>
+                                    <div class="tcm-logo-input-group">
+                                        <input
+                                            type="text"
+                                            name="tcm_vendor_styles[<?php echo esc_attr($slug); ?>][logo_url]"
+                                            value="<?php echo esc_url($settings['logo_url']); ?>"
+                                            class="regular-text tcm-logo-url"
+                                            placeholder="https://..."
+                                        >
+                                        <button type="button" class="button tcm-upload-logo" data-slug="<?php echo esc_attr($slug); ?>">
+                                            <?php _e('Upload', 'tcm-vendor-ui'); ?>
+                                        </button>
+                                    </div>
                                 </td>
 
                                 <!-- Background Color -->
