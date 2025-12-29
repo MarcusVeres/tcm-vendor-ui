@@ -57,11 +57,13 @@ jQuery(document).ready(function($) {
     const categoryData = {};
 
     // Get visible product types for this vendor from localized settings
-    // tcmDropdownSettings.visibleCategories is an array of category objects with slug, label, order
+    // tcmDropdownSettings.visibleCategories is an array of category objects with slug, label, order, enable_fleet_mgmt
     const productTypes = tcmDropdownSettings.visibleCategories.map(cat => cat.slug);
 
-    // Array of product types that show Fleet Management
-    const fleetManagementEnabled = ["shopping-carts"];
+    // Build array of product types that have fleet management enabled (from category meta)
+    const fleetManagementEnabled = tcmDropdownSettings.visibleCategories
+        .filter(cat => cat.enable_fleet_mgmt)
+        .map(cat => cat.slug);
 
     // Build category data structure
     productTypes.forEach(productType => {

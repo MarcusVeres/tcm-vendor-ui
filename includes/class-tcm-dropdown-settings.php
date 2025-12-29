@@ -35,8 +35,60 @@ class TCM_Dropdown_Settings {
     }
 
     /**
-     * Get default product types
+     * Get cart type categories from WooCommerce
+     * Replaces hard-coded get_default_product_types()
+     */
+    public function get_cart_type_categories() {
+        // Get parent "Cart Types" category
+        $parent = get_term_by('slug', 'cart-types', 'product_cat');
+
+        if (!$parent) {
+            // Fallback to hard-coded defaults if parent doesn't exist
+            return $this->get_default_product_types();
+        }
+
+        // Get all child categories
+        $terms = get_terms(array(
+            'taxonomy' => 'product_cat',
+            'parent' => $parent->term_id,
+            'hide_empty' => false,
+            'orderby' => 'meta_value_num term_id', // Order by meta, tiebreaker by ID
+            'meta_key' => 'tcm_category_order',
+            'order' => 'ASC'
+        ));
+
+        if (is_wp_error($terms) || empty($terms)) {
+            // Fallback to hard-coded defaults if query fails
+            return $this->get_default_product_types();
+        }
+
+        // Transform to expected format
+        $categories = array();
+        foreach ($terms as $term) {
+            $order = get_term_meta($term->term_id, 'tcm_category_order', true);
+            $enable_fleet_mgmt = get_term_meta($term->term_id, 'tcm_enable_fleet_management', true);
+
+            $categories[$term->slug] = array(
+                'slug' => $term->slug,
+                'label' => $term->name,
+                'term_id' => $term->term_id,
+                'order' => !empty($order) ? intval($order) : 999,
+                'enable_fleet_mgmt' => ($enable_fleet_mgmt === '1'),
+            );
+        }
+
+        // If no categories found, fallback to defaults
+        if (empty($categories)) {
+            return $this->get_default_product_types();
+        }
+
+        return $categories;
+    }
+
+    /**
+     * Get default product types (DEPRECATED - kept for backward compatibility)
      * These are the Level 1 categories in the dropdown navigator
+     * @deprecated Use get_cart_type_categories() instead
      */
     public function get_default_product_types() {
         return array(
@@ -110,30 +162,11 @@ class TCM_Dropdown_Settings {
 
     /**
      * Get category settings (labels and ordering)
-     * Returns merged default + saved settings
+     * Now reads from WooCommerce categories instead of saved options
      */
     public function get_category_settings() {
-        $defaults = $this->get_default_product_types();
-        $saved = get_option('tcm_dropdown_categories', array());
-
-        // Merge saved settings with defaults
-        $categories = array();
-        foreach ($defaults as $slug => $default_data) {
-            if (isset($saved[$slug])) {
-                // Use saved data but preserve slug
-                $categories[$slug] = wp_parse_args($saved[$slug], $default_data);
-            } else {
-                // Use default
-                $categories[$slug] = $default_data;
-            }
-        }
-
-        // Sort by order
-        uasort($categories, function($a, $b) {
-            return $a['order'] - $b['order'];
-        });
-
-        return $categories;
+        // Read from WooCommerce instead of saved options
+        return $this->get_cart_type_categories();
     }
 
     /**
@@ -206,6 +239,60 @@ class TCM_Dropdown_Settings {
     }
 
     /**
+     * Convert vendor slug to B2BKing group ID
+     *
+     * @param string $vendor_slug Vendor slug (e.g., 'canadian-tire')
+     * @return int|false Group ID or false if not found
+     */
+    public function get_b2bking_group_id_from_slug($vendor_slug) {
+        // Special case: administrator is not a B2BKing group
+        if ($vendor_slug === 'administrator') {
+            return false;
+        }
+
+        if (!$this->b2bking_integration || !$this->b2bking_integration->is_active()) {
+            return false;
+        }
+
+        $groups = $this->b2bking_integration->get_b2bking_groups();
+
+        foreach ($groups as $group) {
+            $slug = $this->b2bking_integration->group_to_slug($group);
+            if ($slug === $vendor_slug) {
+                return $group->ID; // B2BKing group post ID
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if a category is visible to a specific B2BKing group
+     *
+     * @param int $term_id Category term ID
+     * @param int $group_id B2BKing group ID
+     * @return bool True if visible, false if hidden
+     */
+    public function is_category_visible_to_group($term_id, $group_id) {
+        // If B2BKing not active, default to visible
+        if (!class_exists('B2bking')) {
+            return true;
+        }
+
+        // Check B2BKing meta key
+        $meta_key = "b2bking_group_{$group_id}";
+        $is_visible = get_term_meta($term_id, $meta_key, true);
+
+        // B2BKing uses '1' for visible, '0' for hidden
+        // If meta doesn't exist, default to visible
+        if ($is_visible === '') {
+            return true; // Not set, default to visible
+        }
+
+        return ($is_visible === '1');
+    }
+
+    /**
      * Detect current user's vendor slug
      * Reuses logic from class-tcm-user-css.php body class detection
      * Returns vendor slug or false if cannot detect
@@ -257,22 +344,31 @@ class TCM_Dropdown_Settings {
 
     /**
      * Get visible categories for a specific vendor
+     * Now uses B2BKing term meta instead of custom options
      */
     public function get_visible_categories_for_vendor($vendor_slug) {
-        $visibility = $this->get_vendor_visibility();
-        $categories = $this->get_category_settings();
-        $visible = array();
+        // Get all cart type categories
+        $categories = $this->get_cart_type_categories();
 
-        if (isset($visibility[$vendor_slug])) {
-            foreach ($categories as $category_slug => $category_data) {
-                // Check if this vendor can see this category
-                if (isset($visibility[$vendor_slug][$category_slug]) && $visibility[$vendor_slug][$category_slug]) {
-                    $visible[] = $category_data;
-                }
+        // Special case: administrator sees everything
+        if ($vendor_slug === 'administrator') {
+            return array_values($categories);
+        }
+
+        // Get B2BKing group ID for this vendor
+        $group_id = $this->get_b2bking_group_id_from_slug($vendor_slug);
+
+        if (!$group_id) {
+            // Vendor has no B2BKing group (shouldn't happen, but default to showing all)
+            return array_values($categories);
+        }
+
+        // Filter categories by B2BKing visibility
+        $visible = array();
+        foreach ($categories as $category) {
+            if ($this->is_category_visible_to_group($category['term_id'], $group_id)) {
+                $visible[] = $category;
             }
-        } else {
-            // Vendor not in visibility settings, show all categories (default behavior)
-            $visible = array_values($categories);
         }
 
         return $visible;
@@ -298,6 +394,10 @@ class TCM_Dropdown_Settings {
                 'vendorDetected' => !empty($vendor_slug),
                 'visibleCategories' => $visible_categories,
                 'errorMessage' => __('Cannot detect user! Please contact administrator about this message.', 'tcm-vendor-ui'),
+                'debugInfo' => array(
+                    'totalCategories' => count($this->get_cart_type_categories()),
+                    'visibleCount' => count($visible_categories),
+                )
             )
         );
     }

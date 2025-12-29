@@ -3,7 +3,7 @@
  * Plugin Name: TCM Vendor UI
  * Plugin URI: https://tcmlimited.com
  * Description: Custom UI components for TCM vendor portal including category navigation and user-based styling
- * Version: 1.2.4
+ * Version: 1.2.5
  * Author: Marcus & Claude
  * Author URI: https://tcmlimited.com
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('TCM_VENDOR_UI_VERSION', '1.2.4');
+define('TCM_VENDOR_UI_VERSION', '1.2.5');
 define('TCM_VENDOR_UI_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_FILE', __FILE__);
@@ -41,6 +41,7 @@ class TCM_Vendor_UI {
     private $vendor_admin;
     private $vendor_debug;
     private $dropdown_settings;
+    private $cart_type_meta;
     private $dropdown_vendor_visibility;
     private $dropdown_category_settings;
 
@@ -106,6 +107,13 @@ class TCM_Vendor_UI {
 
         // Load Dropdown Admin components (admin only)
         if (is_admin() && isset($this->dropdown_settings)) {
+            // Load Cart Type Meta Fields (adds custom fields to WooCommerce category editor)
+            $cart_type_meta_file = TCM_VENDOR_UI_PLUGIN_DIR . 'admin/class-tcm-cart-type-meta.php';
+            if (file_exists($cart_type_meta_file)) {
+                require_once($cart_type_meta_file);
+                $this->cart_type_meta = new TCM_Cart_Type_Meta($this);
+            }
+
             // Load Dropdown Vendor Visibility admin
             $dropdown_vendor_visibility_file = TCM_VENDOR_UI_PLUGIN_DIR . 'admin/class-tcm-dropdown-vendor-visibility.php';
             if (file_exists($dropdown_vendor_visibility_file)) {
