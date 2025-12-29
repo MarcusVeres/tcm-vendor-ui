@@ -3,7 +3,7 @@
  * Plugin Name: TCM Vendor UI
  * Plugin URI: https://tcmlimited.com
  * Description: Custom UI components for TCM vendor portal including category navigation and user-based styling
- * Version: 1.2.5
+ * Version: 1.2.10
  * Author: Marcus & Claude
  * Author URI: https://tcmlimited.com
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('TCM_VENDOR_UI_VERSION', '1.2.5');
+define('TCM_VENDOR_UI_VERSION', '1.2.10');
 define('TCM_VENDOR_UI_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_FILE', __FILE__);
@@ -112,6 +112,13 @@ class TCM_Vendor_UI {
             if (file_exists($cart_type_meta_file)) {
                 require_once($cart_type_meta_file);
                 $this->cart_type_meta = new TCM_Cart_Type_Meta($this);
+            }
+
+            // Load Visibility Dashboard (read-only overview)
+            $visibility_dashboard_file = TCM_VENDOR_UI_PLUGIN_DIR . 'admin/class-tcm-dropdown-visibility-dashboard.php';
+            if (file_exists($visibility_dashboard_file)) {
+                require_once($visibility_dashboard_file);
+                $this->visibility_dashboard = new TCM_Dropdown_Visibility_Dashboard($this, $this->dropdown_settings);
             }
 
             // Load Dropdown Vendor Visibility admin
