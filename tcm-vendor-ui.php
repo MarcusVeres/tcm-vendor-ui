@@ -3,7 +3,7 @@
  * Plugin Name: TCM Vendor UI
  * Plugin URI: https://tcmlimited.com
  * Description: Custom UI components for TCM vendor portal including category navigation and user-based styling
- * Version: 1.2.10
+ * Version: 1.2.20
  * Author: Marcus & Claude
  * Author URI: https://tcmlimited.com
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('TCM_VENDOR_UI_VERSION', '1.2.10');
+define('TCM_VENDOR_UI_VERSION', '1.2.20');
 define('TCM_VENDOR_UI_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_FILE', __FILE__);
@@ -42,6 +42,7 @@ class TCM_Vendor_UI {
     private $vendor_debug;
     private $dropdown_settings;
     private $cart_type_meta;
+    private $visibility_dashboard;
     private $dropdown_vendor_visibility;
     private $dropdown_category_settings;
 

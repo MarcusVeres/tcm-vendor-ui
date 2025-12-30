@@ -33,52 +33,114 @@ class TCM_Category_Navigator {
     }
 
     /**
-     * Get visible categories for current vendor
-     */
-    private function get_visible_categories() {
-        // Check if TCM_Dropdown_Settings class exists
-        if (!class_exists('TCM_Dropdown_Settings')) {
-            // Fallback to all default categories if dropdown settings not available
-            return $this->get_default_categories();
-        }
-
-        // Create instance of dropdown settings (lightweight, just data access)
-        $dropdown_settings = new TCM_Dropdown_Settings($this->main_plugin);
-
-        // Get visible categories for current vendor
-        $visible_categories = $dropdown_settings->get_visible_categories_for_current_vendor();
-
-        // If empty (vendor not detected or no categories), return all default categories
-        if (empty($visible_categories)) {
-            return $this->get_default_categories();
-        }
-
-        return $visible_categories;
-    }
-
-    /**
-     * Get default categories (fallback)
-     */
-    private function get_default_categories() {
-        return array(
-            array('slug' => 'bakery-carts', 'label' => 'Bakery Carts', 'order' => 1),
-            array('slug' => 'cart-pushers', 'label' => 'Cart Pushers', 'order' => 2),
-            array('slug' => 'ladders', 'label' => 'Ladders', 'order' => 3),
-            array('slug' => 'material-carts', 'label' => 'Material Handling Cart', 'order' => 4),
-            array('slug' => 'meat-carts', 'label' => 'Meat Carts', 'order' => 5),
-            array('slug' => 'mobility-scooters', 'label' => 'Mobility Scooters', 'order' => 6),
-            array('slug' => 'produce-carts', 'label' => 'Produce Carts', 'order' => 7),
-            array('slug' => 'shopping-carts', 'label' => 'Shopping Carts', 'order' => 8),
-            array('slug' => 'specialty-equipment', 'label' => 'Specialty Equipment', 'order' => 9),
-        );
-    }
-
-    /**
      * Render the navigator shortcode
      */
     public function render_category_navigator($atts) {
-        // Get visible categories for current vendor
-        $visible_categories = $this->get_visible_categories();
+        // BYPASS B2BKing category filtering - we handle visibility ourselves
+        add_filter('b2bking_categories_restrict_filter_abort', '__return_true');
+        add_filter('b2bking_completely_category_restrict', '__return_false');
+
+        // Query categories RIGHT HERE in the shortcode
+        $parent = get_term_by('slug', 'cart-types', 'product_cat');
+
+        // NO FALLBACK. If parent doesn't exist, CRITICAL ERROR.
+        if (!$parent) {
+            // DEBUG: Let's see what categories DO exist
+            $all_cats = get_terms(array(
+                'taxonomy' => 'product_cat',
+                'hide_empty' => false
+            ));
+
+            $debug_info = '';
+            if (current_user_can('manage_options')) {
+                $debug_info = '<h3>DEBUG: Searching ALL ' . count($all_cats) . ' product categories for "cart-types":</h3><ul style="max-height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">';
+                foreach ($all_cats as $cat) {
+                    $highlight = (strpos($cat->slug, 'cart') !== false) ? ' style="background: yellow; font-weight: bold;"' : '';
+                    $debug_info .= '<li' . $highlight . '>' . esc_html($cat->name) . ' (slug: <code>' . esc_html($cat->slug) . '</code>, ID: ' . $cat->term_id . ', parent: ' . $cat->parent . ')</li>';
+                }
+                $debug_info .= '</ul>';
+            }
+
+            return '<div style="border: 4px solid red; padding: 20px; background: #ffeeee; margin: 20px 0;">
+                <h2 style="color: red; margin-top: 0;">CRITICAL ERROR: Cart Types Category Not Found</h2>
+                <p><strong>get_term_by(\'slug\', \'cart-types\', \'product_cat\') returned FALSE</strong></p>
+                <p>Go to <strong>Products → Categories</strong> and verify a category exists with EXACT slug <code>cart-types</code></p>
+                ' . $debug_info . '
+            </div>';
+        }
+
+        // Query child categories (B2BKing filtering already bypassed above)
+        $terms = get_terms(array(
+            'taxonomy' => 'product_cat',
+            'parent' => $parent->term_id,
+            'hide_empty' => false,
+            'orderby' => 'name',
+            'order' => 'ASC'
+        ));
+
+        // DEBUG: Log what get_terms returned
+        if (current_user_can('manage_options')) {
+            error_log('TCM DEBUG: get_terms returned ' . (is_wp_error($terms) ? 'ERROR: ' . $terms->get_error_message() : count($terms) . ' terms'));
+            if (!is_wp_error($terms) && !empty($terms)) {
+                foreach ($terms as $term) {
+                    error_log('  - ' . $term->name . ' (ID: ' . $term->term_id . ')');
+                }
+            }
+        }
+
+        if (is_wp_error($terms)) {
+            return '<div style="border: 4px solid red; padding: 20px; background: #ffeeee; margin: 20px 0;">
+                <h2 style="color: red; margin-top: 0;">CRITICAL ERROR: Cannot Query Categories</h2>
+                <p><strong>WooCommerce get_terms() error:</strong> ' . esc_html($terms->get_error_message()) . '</p>
+            </div>';
+        }
+
+        if (empty($terms)) {
+            $debug_info = '';
+            if (current_user_can('manage_options')) {
+                $debug_info = '<h3>DEBUG INFO:</h3>';
+                $debug_info .= '<p>Parent term: <strong>' . esc_html($parent->name) . '</strong> (ID: ' . $parent->term_id . ')</p>';
+                $debug_info .= '<p>Query: <code>get_terms(array(\'taxonomy\' => \'product_cat\', \'parent\' => ' . $parent->term_id . ', \'hide_empty\' => false))</code></p>';
+                $debug_info .= '<p>b2bking_categories_restrict_filter_abort filter: ' . (has_filter('b2bking_categories_restrict_filter_abort') ? 'ACTIVE' : 'NOT ACTIVE') . '</p>';
+                $debug_info .= '<p>Check error log for detailed query results.</p>';
+            }
+
+            return '<div style="border: 4px solid red; padding: 20px; background: #ffeeee; margin: 20px 0;">
+                <h2 style="color: red; margin-top: 0;">CRITICAL ERROR: No Cart Type Categories Found</h2>
+                <p><strong>The "Cart Types" category has no children.</strong></p>
+                <p>Go to <strong>Products → Categories</strong> and create child categories under "Cart Types".</p>
+                ' . $debug_info . '
+            </div>';
+        }
+
+        // Build category data array
+        $categories = array();
+        foreach ($terms as $term) {
+            $order = get_term_meta($term->term_id, 'tcm_category_order', true);
+            $enable_fleet = get_term_meta($term->term_id, 'tcm_enable_fleet_management', true);
+
+            $categories[] = array(
+                'slug' => $term->slug,
+                'label' => $term->name,
+                'term_id' => $term->term_id,
+                'order' => !empty($order) ? intval($order) : 999,
+                'enable_fleet_mgmt' => ($enable_fleet === '1'),
+            );
+        }
+
+        // Detect current vendor and filter categories
+        $dropdown_settings = new TCM_Dropdown_Settings($this->main_plugin);
+        $vendor_slug = $dropdown_settings->detect_current_vendor();
+
+        if (!$vendor_slug) {
+            return '<div style="border: 4px solid red; padding: 20px; background: #ffeeee; margin: 20px 0;">
+                <h2 style="color: red; margin-top: 0;">CRITICAL ERROR: Cannot Detect User</h2>
+                <p><strong>You must be logged in to use this dropdown.</strong></p>
+                <p>If you are logged in, contact administrator - your user account is not properly configured.</p>
+            </div>';
+        }
+
+        $visible_categories = $dropdown_settings->get_visible_categories_for_vendor($vendor_slug);
 
         // Start output buffering
         ob_start();
@@ -122,9 +184,33 @@ class TCM_Category_Navigator {
             GO
           </a>
         </div>
+
+        <script>
+        // Pass category data inline
+        window.tcmDropdownSettings = {
+            vendorSlug: <?php echo json_encode($vendor_slug); ?>,
+            vendorDetected: true,
+            visibleCategories: <?php echo json_encode(array_values($visible_categories)); ?>
+        };
+        </script>
+
+        <?php if (current_user_can('manage_options')): ?>
+        <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border: 1px solid #ccc; font-size: 12px;">
+            <strong>DEBUG (Admin Only):</strong><br>
+            Vendor: <?php echo esc_html($vendor_slug); ?><br>
+            Visible Categories (<?php echo count($visible_categories); ?>):
+            <?php echo esc_html(implode(', ', array_column($visible_categories, 'label'))); ?>
+        </div>
+        <?php endif; ?>
         <?php
 
         // Return the buffered content
-        return ob_get_clean();
+        $output = ob_get_clean();
+
+        // Remove B2BKing bypass filters
+        remove_filter('b2bking_categories_restrict_filter_abort', '__return_true');
+        remove_filter('b2bking_completely_category_restrict', '__return_false');
+
+        return $output;
     }
 }

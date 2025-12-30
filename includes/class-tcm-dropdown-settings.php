@@ -30,8 +30,8 @@ class TCM_Dropdown_Settings {
      * Initialize hooks
      */
     private function init_hooks() {
-        // Localize settings for frontend JavaScript
-        add_action('wp_enqueue_scripts', array($this, 'localize_dropdown_settings'), 20);
+        // Data is now passed inline via shortcode (see class-tcm-category-navigator.php)
+        // No longer using wp_localize_script() due to hook timing issues
     }
 
     /**
@@ -39,6 +39,10 @@ class TCM_Dropdown_Settings {
      * Replaces hard-coded get_default_product_types()
      */
     public function get_cart_type_categories() {
+        // BYPASS B2BKing category filtering - we handle visibility ourselves
+        add_filter('b2bking_categories_restrict_filter_abort', '__return_true');
+        add_filter('b2bking_completely_category_restrict', '__return_false');
+
         // Get parent "Cart Types" category
         $parent = get_term_by('slug', 'cart-types', 'product_cat');
 
@@ -56,7 +60,7 @@ class TCM_Dropdown_Settings {
             error_log('TCM Dropdown: Found parent "cart-types" with ID: ' . $parent->term_id);
         }
 
-        // Get all child categories
+        // Get all child categories (B2BKing filtering already bypassed above)
         $terms = get_terms(array(
             'taxonomy' => 'product_cat',
             'parent' => $parent->term_id,
@@ -98,6 +102,10 @@ class TCM_Dropdown_Settings {
                 error_log("TCM Dropdown: Category {$term->name} (ID: {$term->term_id}, order: {$order})");
             }
         }
+
+        // Remove B2BKing bypass filters
+        remove_filter('b2bking_categories_restrict_filter_abort', '__return_true');
+        remove_filter('b2bking_completely_category_restrict', '__return_false');
 
         // If no categories found, fallback to defaults
         if (empty($categories)) {
@@ -410,13 +418,15 @@ class TCM_Dropdown_Settings {
         // Filter categories by B2BKing visibility
         $visible = array();
         foreach ($categories as $category) {
-            $is_visible = $this->is_category_visible_to_group($category['term_id'], $group_id);
+            $term_id = isset($category['term_id']) ? $category['term_id'] : 0;
+            $is_visible = $this->is_category_visible_to_group($term_id, $group_id);
 
             // DEBUG
             if (current_user_can('manage_options')) {
                 $meta_key = "b2bking_group_{$group_id}";
-                $meta_value = get_term_meta($category['term_id'], $meta_key, true);
-                error_log("TCM: Category {$category['label']} (ID {$category['term_id']}): meta={$meta_value}, visible=" . ($is_visible ? 'YES' : 'NO'));
+                $meta_value = get_term_meta($term_id, $meta_key, true);
+                $decision = $is_visible ? 'VISIBLE (included)' : 'HIDDEN (excluded)';
+                error_log("TCM FILTER: {$category['label']} (ID:{$term_id}) | meta_key:{$meta_key} | meta_value:'{$meta_value}' | {$decision}");
             }
 
             if ($is_visible) {
