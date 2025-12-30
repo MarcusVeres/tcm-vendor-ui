@@ -47,17 +47,8 @@ class TCM_Dropdown_Settings {
         $parent = get_term_by('slug', 'cart-types', 'product_cat');
 
         if (!$parent) {
-            // DEBUG: Log why we're falling back
-            if (current_user_can('manage_options')) {
-                error_log('TCM Dropdown: Parent "cart-types" category not found. Using fallback.');
-            }
             // Fallback to hard-coded defaults if parent doesn't exist
             return $this->get_default_product_types();
-        }
-
-        // DEBUG: Log parent found
-        if (current_user_can('manage_options')) {
-            error_log('TCM Dropdown: Found parent "cart-types" with ID: ' . $parent->term_id);
         }
 
         // Get all child categories (B2BKing filtering already bypassed above)
@@ -68,15 +59,6 @@ class TCM_Dropdown_Settings {
             'orderby' => 'name', // Use simple ordering for now
             'order' => 'ASC'
         ));
-
-        // DEBUG: Log query result
-        if (current_user_can('manage_options')) {
-            if (is_wp_error($terms)) {
-                error_log('TCM Dropdown: get_terms error: ' . $terms->get_error_message());
-            } else {
-                error_log('TCM Dropdown: Found ' . count($terms) . ' child categories');
-            }
-        }
 
         if (is_wp_error($terms) || empty($terms)) {
             // Fallback to hard-coded defaults if query fails
@@ -96,11 +78,6 @@ class TCM_Dropdown_Settings {
                 'order' => !empty($order) ? intval($order) : 999,
                 'enable_fleet_mgmt' => ($enable_fleet_mgmt === '1'),
             );
-
-            // DEBUG: Log each category
-            if (current_user_can('manage_options')) {
-                error_log("TCM Dropdown: Category {$term->name} (ID: {$term->term_id}, order: {$order})");
-            }
         }
 
         // Remove B2BKing bypass filters
@@ -385,33 +362,16 @@ class TCM_Dropdown_Settings {
         // Get all cart type categories
         $categories = $this->get_cart_type_categories();
 
-        // DEBUG
-        if (current_user_can('manage_options')) {
-            error_log("TCM: get_visible_categories_for_vendor called with vendor_slug: {$vendor_slug}");
-            error_log("TCM: Found " . count($categories) . " total categories");
-        }
-
         // Special case: administrator sees everything
         if ($vendor_slug === 'administrator') {
-            if (current_user_can('manage_options')) {
-                error_log("TCM: Vendor is administrator, returning all categories");
-            }
             return array_values($categories);
         }
 
         // Get B2BKing group ID for this vendor
         $group_id = $this->get_b2bking_group_id_from_slug($vendor_slug);
 
-        // DEBUG
-        if (current_user_can('manage_options')) {
-            error_log("TCM: Group ID for {$vendor_slug}: " . ($group_id ? $group_id : 'FALSE'));
-        }
-
         if (!$group_id) {
             // Vendor has no B2BKing group (shouldn't happen, but default to showing all)
-            if (current_user_can('manage_options')) {
-                error_log("TCM: No group ID found, returning all categories");
-            }
             return array_values($categories);
         }
 
@@ -421,22 +381,9 @@ class TCM_Dropdown_Settings {
             $term_id = isset($category['term_id']) ? $category['term_id'] : 0;
             $is_visible = $this->is_category_visible_to_group($term_id, $group_id);
 
-            // DEBUG
-            if (current_user_can('manage_options')) {
-                $meta_key = "b2bking_group_{$group_id}";
-                $meta_value = get_term_meta($term_id, $meta_key, true);
-                $decision = $is_visible ? 'VISIBLE (included)' : 'HIDDEN (excluded)';
-                error_log("TCM FILTER: {$category['label']} (ID:{$term_id}) | meta_key:{$meta_key} | meta_value:'{$meta_value}' | {$decision}");
-            }
-
             if ($is_visible) {
                 $visible[] = $category;
             }
-        }
-
-        // DEBUG
-        if (current_user_can('manage_options')) {
-            error_log("TCM: Returning " . count($visible) . " visible categories");
         }
 
         return $visible;

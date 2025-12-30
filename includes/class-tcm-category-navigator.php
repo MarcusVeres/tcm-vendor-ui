@@ -78,16 +78,6 @@ class TCM_Category_Navigator {
             'order' => 'ASC'
         ));
 
-        // DEBUG: Log what get_terms returned
-        if (current_user_can('manage_options')) {
-            error_log('TCM DEBUG: get_terms returned ' . (is_wp_error($terms) ? 'ERROR: ' . $terms->get_error_message() : count($terms) . ' terms'));
-            if (!is_wp_error($terms) && !empty($terms)) {
-                foreach ($terms as $term) {
-                    error_log('  - ' . $term->name . ' (ID: ' . $term->term_id . ')');
-                }
-            }
-        }
-
         if (is_wp_error($terms)) {
             return '<div style="border: 4px solid red; padding: 20px; background: #ffeeee; margin: 20px 0;">
                 <h2 style="color: red; margin-top: 0;">CRITICAL ERROR: Cannot Query Categories</h2>
@@ -99,10 +89,9 @@ class TCM_Category_Navigator {
             $debug_info = '';
             if (current_user_can('manage_options')) {
                 $debug_info = '<h3>DEBUG INFO:</h3>';
-                $debug_info .= '<p>Parent term: <strong>' . esc_html($parent->name) . '</strong> (ID: ' . $parent->term_id . ')</p>';
-                $debug_info .= '<p>Query: <code>get_terms(array(\'taxonomy\' => \'product_cat\', \'parent\' => ' . $parent->term_id . ', \'hide_empty\' => false))</code></p>';
-                $debug_info .= '<p>b2bking_categories_restrict_filter_abort filter: ' . (has_filter('b2bking_categories_restrict_filter_abort') ? 'ACTIVE' : 'NOT ACTIVE') . '</p>';
-                $debug_info .= '<p>Check error log for detailed query results.</p>';
+                $debug_info .= '<p>Parent: <strong>' . esc_html($parent->name) . '</strong> (ID: ' . $parent->term_id . ')</p>';
+                $debug_info .= '<p>B2BKing bypass filter: ' . (has_filter('b2bking_categories_restrict_filter_abort') ? '✅ Active' : '❌ Not Active') . '</p>';
+                $debug_info .= '<p><em>If categories exist but aren\'t showing, check B2BKing visibility checkboxes in category editor.</em></p>';
             }
 
             return '<div style="border: 4px solid red; padding: 20px; background: #ffeeee; margin: 20px 0;">
@@ -195,11 +184,11 @@ class TCM_Category_Navigator {
         </script>
 
         <?php if (current_user_can('manage_options')): ?>
-        <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border: 1px solid #ccc; font-size: 12px;">
-            <strong>DEBUG (Admin Only):</strong><br>
-            Vendor: <?php echo esc_html($vendor_slug); ?><br>
-            Visible Categories (<?php echo count($visible_categories); ?>):
-            <?php echo esc_html(implode(', ', array_column($visible_categories, 'label'))); ?>
+        <div style="margin-top: 20px; padding: 10px 15px; background: #f8f9fa; border-left: 4px solid #0073aa; font-size: 12px; font-family: monospace;">
+            <strong style="color: #0073aa;">🔧 Admin Debug Info</strong><br>
+            <span style="color: #666;">Vendor:</span> <strong><?php echo esc_html($vendor_slug); ?></strong> |
+            <span style="color: #666;">Visible:</span> <strong><?php echo count($visible_categories); ?> categories</strong><br>
+            <span style="color: #999; font-size: 11px;"><?php echo esc_html(implode(', ', array_column($visible_categories, 'label'))); ?></span>
         </div>
         <?php endif; ?>
         <?php
