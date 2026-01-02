@@ -70,6 +70,22 @@ class TCM_Dropdown_Settings {
         foreach ($terms as $term) {
             $order = get_term_meta($term->term_id, 'tcm_category_order', true);
             $enable_fleet_mgmt = get_term_meta($term->term_id, 'tcm_enable_fleet_management', true);
+            $parts_category_ids = get_term_meta($term->term_id, 'tcm_parts_categories', true);
+
+            // Get parts category details
+            $parts = array();
+            if (!empty($parts_category_ids) && is_array($parts_category_ids)) {
+                foreach ($parts_category_ids as $part_id) {
+                    $part_term = get_term($part_id, 'product_cat');
+                    if ($part_term && !is_wp_error($part_term)) {
+                        $parts[] = array(
+                            'slug' => $part_term->slug,
+                            'name' => $part_term->name,
+                            'term_id' => $part_term->term_id
+                        );
+                    }
+                }
+            }
 
             $categories[$term->slug] = array(
                 'slug' => $term->slug,
@@ -77,6 +93,7 @@ class TCM_Dropdown_Settings {
                 'term_id' => $term->term_id,
                 'order' => !empty($order) ? intval($order) : 999,
                 'enable_fleet_mgmt' => ($enable_fleet_mgmt === '1'),
+                'parts' => $parts
             );
         }
 

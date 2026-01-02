@@ -102,22 +102,8 @@ class TCM_Category_Navigator {
             </div>';
         }
 
-        // Build category data array
-        $categories = array();
-        foreach ($terms as $term) {
-            $order = get_term_meta($term->term_id, 'tcm_category_order', true);
-            $enable_fleet = get_term_meta($term->term_id, 'tcm_enable_fleet_management', true);
-
-            $categories[] = array(
-                'slug' => $term->slug,
-                'label' => $term->name,
-                'term_id' => $term->term_id,
-                'order' => !empty($order) ? intval($order) : 999,
-                'enable_fleet_mgmt' => ($enable_fleet === '1'),
-            );
-        }
-
         // Detect current vendor and filter categories
+        // (Parts data is now included in get_visible_categories_for_vendor)
         $dropdown_settings = new TCM_Dropdown_Settings($this->main_plugin);
         $vendor_slug = $dropdown_settings->detect_current_vendor();
 

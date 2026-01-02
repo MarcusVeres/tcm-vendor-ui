@@ -27,30 +27,18 @@ jQuery(document).ready(function($) {
     };
 
     /**
-     * Generate sample parts for a given category
+     * Get parts for a given category from dynamic configuration
      */
-    function generateSampleParts(category) {
-        const commonParts = [];
+    function getPartsForCategory(categorySlug) {
+        // Find the category in the visible categories data
+        const category = tcmDropdownSettings.visibleCategories.find(cat => cat.slug === categorySlug);
 
-        // Add some category-specific parts
-        const specificParts = {
-            "bakery-carts": ["Specialty Wheels"],
-            "cart-pushers": [],
-            "ladders": [],
-            "material-carts": ["Heavy Duty Wheels", "Light Duty Wheels"],
-            "meat-carts": ["Light Duty Wheels"],
-            "mobility-scooters": [],
-            "produce-carts": ["Heavy Duty Wheels", "Light Duty Wheels"],
-            "shopping-carts": [
-                "Ads and Labels", "Accessories", "Bumpers", "Chains", "Ears",
-                "Handles", "Light Duty Wheels", "Locks", "Seats", "Seatbelts",
-                "Security Wheels"
-            ],
-            "specialty-equipment": ["Specialty Wheels"]
-        };
+        if (!category || !category.parts || !Array.isArray(category.parts)) {
+            return [];
+        }
 
-        // Combine arrays and sort alphabetically
-        return [...commonParts, ...(specificParts[category] || [])].sort();
+        // Extract part names and sort alphabetically
+        return category.parts.map(part => part.name).sort();
     }
 
     // Generate the category data
@@ -67,8 +55,8 @@ jQuery(document).ready(function($) {
 
     // Build category data structure
     productTypes.forEach(productType => {
-        // Get parts for this product type
-        const parts = generateSampleParts(productType);
+        // Get parts for this product type from dynamic configuration
+        const parts = getPartsForCategory(productType);
 
         // Only include "Parts" in options if parts exist
         let options = ["Consultation", "Maintenance"];

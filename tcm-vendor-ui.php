@@ -3,7 +3,7 @@
  * Plugin Name: TCM Vendor UI
  * Plugin URI: https://tcmlimited.com
  * Description: Custom UI components for TCM vendor portal including category navigation and user-based styling
- * Version: 1.2.26
+ * Version: 1.2.29
  * Author: Marcus & Claude
  * Author URI: https://tcmlimited.com
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('TCM_VENDOR_UI_VERSION', '1.2.26');
+define('TCM_VENDOR_UI_VERSION', '1.2.29');
 define('TCM_VENDOR_UI_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_FILE', __FILE__);
@@ -45,6 +45,7 @@ class TCM_Vendor_UI {
     private $visibility_dashboard;
     private $dropdown_vendor_visibility;
     private $dropdown_category_settings;
+    private $dropdown_parts_config;
 
     /**
      * Constructor
@@ -127,6 +128,13 @@ class TCM_Vendor_UI {
             if (file_exists($visibility_dashboard_file)) {
                 require_once($visibility_dashboard_file);
                 $this->visibility_dashboard = new TCM_Dropdown_Visibility_Dashboard($this, $this->dropdown_settings);
+            }
+
+            // Load Parts Configuration admin
+            $dropdown_parts_config_file = TCM_VENDOR_UI_PLUGIN_DIR . 'admin/class-tcm-dropdown-parts-config.php';
+            if (file_exists($dropdown_parts_config_file)) {
+                require_once($dropdown_parts_config_file);
+                $this->dropdown_parts_config = new TCM_Dropdown_Parts_Config($this, $this->dropdown_settings);
             }
 
             // Load Dropdown Category Settings admin (deprecated but kept for backward compatibility)
