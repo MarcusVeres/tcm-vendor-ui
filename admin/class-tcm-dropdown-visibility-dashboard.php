@@ -75,55 +75,70 @@ class TCM_Dropdown_Visibility_Dashboard {
                     ✅ = Visible to vendor &nbsp;&nbsp; ❌ = Hidden from vendor &nbsp;&nbsp; 🟢 = Default (not set, visible by default)
                 </p>
 
-                <table class="wp-list-table widefat striped">
-                    <thead>
-                        <tr>
-                            <th style="min-width: 200px;">Category</th>
+                <div style="overflow-x: auto; margin-top: 20px;">
+                    <table class="wp-list-table widefat striped" style="min-width: 800px; table-layout: fixed;">
+                        <colgroup>
+                            <col style="width: 220px;">
                             <?php foreach ($vendors as $vendor_slug => $vendor_name): ?>
-                                <th style="text-align: center;">
-                                    <?php echo esc_html($vendor_name); ?>
-                                </th>
+                                <col style="width: 110px;">
                             <?php endforeach; ?>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($categories as $category): ?>
+                            <col style="width: 120px;">
+                        </colgroup>
+                        <thead>
                             <tr>
-                                <td>
-                                    <strong><?php echo esc_html($category['label']); ?></strong>
-                                    <br>
-                                    <small style="color: #666;">
-                                        Order: <?php echo esc_html($category['order']); ?>
-                                        <?php if (!empty($category['enable_fleet_mgmt'])): ?>
-                                            | Fleet Mgmt: ✓
-                                        <?php endif; ?>
-                                    </small>
-                                </td>
-
+                                <th style="position: sticky; left: 0; background: #f0f0f1; z-index: 10; box-shadow: 2px 0 4px rgba(0,0,0,0.1);">
+                                    Category
+                                </th>
                                 <?php foreach ($vendors as $vendor_slug => $vendor_name): ?>
-                                    <td style="text-align: center; font-size: 20px;">
-                                        <?php
-                                        $visibility = $this->check_category_visibility($category, $vendor_slug);
-                                        echo $visibility['icon'];
-                                        ?>
+                                    <th style="text-align: center;">
+                                        <?php echo esc_html($vendor_name); ?>
+                                    </th>
+                                <?php endforeach; ?>
+                                <th style="text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $row_index = 0;
+                            foreach ($categories as $category):
+                                $bg_color = ($row_index % 2 === 0) ? '#fff' : '#f9f9f9';
+                                $row_index++;
+                            ?>
+                                <tr>
+                                    <td style="position: sticky; left: 0; background: <?php echo $bg_color; ?>; z-index: 9; box-shadow: 2px 0 4px rgba(0,0,0,0.1);">
+                                        <strong><?php echo esc_html($category['label']); ?></strong>
                                         <br>
-                                        <small style="font-size: 11px; color: #666;">
-                                            <?php echo esc_html($visibility['label']); ?>
+                                        <small style="color: #666;">
+                                            Order: <?php echo esc_html($category['order']); ?>
+                                            <?php if (!empty($category['enable_fleet_mgmt'])): ?>
+                                                | Fleet Mgmt: ✓
+                                            <?php endif; ?>
                                         </small>
                                     </td>
-                                <?php endforeach; ?>
 
-                                <td>
-                                    <a href="<?php echo admin_url('term.php?taxonomy=product_cat&tag_ID=' . $category['term_id'] . '&post_type=product'); ?>"
-                                       class="button button-small">
-                                        Edit Category
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                                    <?php foreach ($vendors as $vendor_slug => $vendor_name): ?>
+                                        <td style="text-align: center; white-space: nowrap;">
+                                            <?php
+                                            $visibility = $this->check_category_visibility($category, $vendor_slug);
+                                            ?>
+                                            <span style="font-size: 18px;"><?php echo $visibility['icon']; ?></span>
+                                            <span style="font-size: 11px; color: #666; margin-left: 4px;">
+                                                <?php echo esc_html($visibility['label']); ?>
+                                            </span>
+                                        </td>
+                                    <?php endforeach; ?>
+
+                                    <td style="text-align: center;">
+                                        <a href="<?php echo admin_url('term.php?taxonomy=product_cat&tag_ID=' . $category['term_id'] . '&post_type=product'); ?>"
+                                           class="button button-small">
+                                            Edit Category
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; // End categories loop ?>
+                        </tbody>
+                    </table>
+                </div>
 
                 <div style="margin-top: 30px;">
                     <h3>Quick Stats</h3>
