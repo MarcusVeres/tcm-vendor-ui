@@ -69,8 +69,12 @@ class TCM_Dropdown_Settings {
         $categories = array();
         foreach ($terms as $term) {
             $order = get_term_meta($term->term_id, 'tcm_category_order', true);
-            $enable_fleet_mgmt = get_term_meta($term->term_id, 'tcm_enable_fleet_management', true);
             $parts_category_ids = get_term_meta($term->term_id, 'tcm_parts_categories', true);
+
+            // Get service settings
+            $enable_consultation = get_term_meta($term->term_id, 'tcm_enable_consultation', true);
+            $enable_maintenance = get_term_meta($term->term_id, 'tcm_enable_maintenance', true);
+            $enable_fleet_mgmt = get_term_meta($term->term_id, 'tcm_enable_fleet_management', true);
 
             // Get parts category details
             $parts = array();
@@ -92,8 +96,12 @@ class TCM_Dropdown_Settings {
                 'label' => $term->name,
                 'term_id' => $term->term_id,
                 'order' => !empty($order) ? intval($order) : 999,
-                'enable_fleet_mgmt' => ($enable_fleet_mgmt === '1'),
-                'parts' => $parts
+                'parts' => $parts,
+                'services' => array(
+                    'consultation' => ($enable_consultation === '1' || $enable_consultation === ''),
+                    'maintenance' => ($enable_maintenance === '1' || $enable_maintenance === ''),
+                    'fleet_management' => ($enable_fleet_mgmt === '1')
+                )
             );
         }
 
@@ -407,6 +415,39 @@ class TCM_Dropdown_Settings {
     }
 
     /**
+     * Get service configuration
+     * Retrieves global service settings from wp_options
+     */
+    public function get_service_config() {
+        $default_services = array(
+            'consultation' => array(
+                'label' => 'Consultation',
+                'url' => '/contact/',
+                'enabled_by_default' => true
+            ),
+            'maintenance' => array(
+                'label' => 'Maintenance',
+                'url' => '/maintenance/',
+                'enabled_by_default' => true
+            ),
+            'fleet-management' => array(
+                'label' => 'Fleet Management',
+                'url' => '/fleet-management/',
+                'enabled_by_default' => false
+            )
+        );
+
+        $saved = get_option('tcm_dropdown_services', false);
+
+        if ($saved === false) {
+            return $default_services;
+        }
+
+        // Merge with defaults to ensure all services exist
+        return array_merge($default_services, $saved);
+    }
+
+    /**
      * Localize settings to JavaScript
      * Makes settings available to frontend.js
      */
@@ -425,6 +466,7 @@ class TCM_Dropdown_Settings {
                 'vendorSlug' => $vendor_slug,
                 'vendorDetected' => !empty($vendor_slug),
                 'visibleCategories' => $visible_categories,
+                'serviceConfig' => $this->get_service_config(),
                 'errorMessage' => __('Cannot detect user! Please contact administrator about this message.', 'tcm-vendor-ui'),
                 'debugInfo' => array(
                     'totalCategories' => count($this->get_cart_type_categories()),

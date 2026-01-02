@@ -19,12 +19,21 @@ jQuery(document).ready(function($) {
     const autoSelectParts = false;
     const rootURL = "https://tcmlimited.com/";
 
-    // WooCommerce integration
-    const standardServices = {
-        "consultation": rootURL + "contact/",
-        "fleet-management": rootURL + "fleet-management/",
-        "maintenance": rootURL + "maintenance/"
-    };
+    // Build service URLs from dynamic configuration
+    const serviceConfig = tcmDropdownSettings.serviceConfig || {};
+    const standardServices = {};
+
+    Object.keys(serviceConfig).forEach(serviceKey => {
+        const service = serviceConfig[serviceKey];
+        let url = service.url;
+
+        // Handle relative vs absolute URLs
+        if (url.startsWith('/') && !url.startsWith('//')) {
+            url = rootURL.replace(/\/$/, '') + url;
+        }
+
+        standardServices[serviceKey] = url;
+    });
 
     /**
      * Get parts for a given category from dynamic configuration
@@ -45,52 +54,67 @@ jQuery(document).ready(function($) {
     const categoryData = {};
 
     // Get visible product types for this vendor from localized settings
-    // tcmDropdownSettings.visibleCategories is an array of category objects with slug, label, order, enable_fleet_mgmt
+    // tcmDropdownSettings.visibleCategories is an array of category objects with slug, label, order, parts, services
     const productTypes = tcmDropdownSettings.visibleCategories.map(cat => cat.slug);
-
-    // Build array of product types that have fleet management enabled (from category meta)
-    const fleetManagementEnabled = tcmDropdownSettings.visibleCategories
-        .filter(cat => cat.enable_fleet_mgmt)
-        .map(cat => cat.slug);
 
     // Build category data structure
     productTypes.forEach(productType => {
+        // Find the category object to get service settings
+        const category = tcmDropdownSettings.visibleCategories.find(cat => cat.slug === productType);
+
+        if (!category) {
+            return;
+        }
+
         // Get parts for this product type from dynamic configuration
         const parts = getPartsForCategory(productType);
 
-        // Only include "Parts" in options if parts exist
-        let options = ["Consultation", "Maintenance"];
+        // Build options array based on service settings
+        let options = [];
+        let subcategories = {};
 
-        // Add Fleet Management only for enabled product types
-        if (fleetManagementEnabled.includes(productType)) {
-            options.push("Fleet Management");
+        // Add Consultation if enabled for this category
+        if (category.services && category.services.consultation) {
+            const consultationLabel = serviceConfig['consultation']?.label || 'Consultation';
+            options.push(consultationLabel);
+            subcategories["consultation"] = {
+                options: [],
+                url: standardServices.consultation || standardServices['consultation']
+            };
+        }
+
+        // Add Maintenance if enabled for this category
+        if (category.services && category.services.maintenance) {
+            const maintenanceLabel = serviceConfig['maintenance']?.label || 'Maintenance';
+            options.push(maintenanceLabel);
+            subcategories["maintenance"] = {
+                options: [],
+                url: standardServices.maintenance || standardServices['maintenance']
+            };
+        }
+
+        // Add Fleet Management if enabled for this category
+        if (category.services && category.services.fleet_management) {
+            const fleetLabel = serviceConfig['fleet-management']?.label || 'Fleet Management';
+            options.push(fleetLabel);
+            subcategories["fleet-management"] = {
+                options: [],
+                url: standardServices["fleet-management"] || standardServices['fleet-management']
+            };
         }
 
         // Add Parts option only if parts array isn't empty
         if (parts.length > 0) {
             options.push("Parts");
+            subcategories["parts"] = {
+                options: parts,
+                url: "/product-category/" + productType + "-parts"
+            };
         }
 
         categoryData[productType] = {
             options: options,
-            subcategories: {
-                "consultation": {
-                    options: [],
-                    url: standardServices.consultation
-                },
-                "fleet-management": {
-                    options: [],
-                    url: standardServices["fleet-management"]
-                },
-                "maintenance": {
-                    options: [],
-                    url: standardServices.maintenance
-                },
-                "parts": {
-                    options: parts,
-                    url: "/product-category/" + productType + "-parts"
-                }
-            }
+            subcategories: subcategories
         };
     });
 
@@ -109,15 +133,10 @@ jQuery(document).ready(function($) {
 
         if (level1.value && categoryData[level1.value]) {
             level2.innerHTML = "<option value=\"\">Select Option</option>";
-            categoryData[level1.value].options
-                .filter(option =>
-                    option !== "Fleet Management" ||
-                    fleetManagementEnabled.includes(level1.value)
-                )
-                .forEach(option => {
-                    const value = option.toLowerCase().replace(" ", "-");
-                    level2.innerHTML += "<option value=\"" + value + "\">" + option + "</option>";
-                });
+            categoryData[level1.value].options.forEach(option => {
+                const value = option.toLowerCase().replace(/\s+/g, "-");
+                level2.innerHTML += "<option value=\"" + value + "\">" + option + "</option>";
+            });
 
             if(autoSelectParts === true) {
                 level2.value = "parts";
@@ -143,12 +162,24 @@ jQuery(document).ready(function($) {
         const messageContainer = document.getElementById("contact-message");
         const level3Container = document.getElementById("level3-select-container");
 
+        // Get the service configuration
+        let serviceUrl = standardServices[service];
+        let messageText = "";
+
         if (service === "consultation") {
-            messageContainer.innerHTML = "<a target=\"_blank\" href=\"" + standardServices.consultation + "\"> Please contact us for assistance";
+            messageText = "Please contact us for assistance";
         } else if (service === "fleet-management") {
-            messageContainer.innerHTML = "<a target=\"_blank\" href=\"" + standardServices["fleet-management"] + "\">View our fleet management services</a>";
+            messageText = "View our fleet management services";
         } else if (service === "maintenance") {
-            messageContainer.innerHTML = "<a target=\"_blank\" href=\"" + standardServices.maintenance + "\">Learn about our maintenance programs</a>";
+            messageText = "Learn about our maintenance programs";
+        } else {
+            messageText = "Learn more";
+        }
+
+        if (serviceUrl) {
+            messageContainer.innerHTML = "<a target=\"_blank\" href=\"" + serviceUrl + "\">" + messageText + "</a>";
+        } else {
+            messageContainer.innerHTML = messageText;
         }
 
         messageContainer.style.display = "flex";

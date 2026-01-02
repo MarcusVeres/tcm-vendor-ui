@@ -165,7 +165,8 @@ class TCM_Category_Navigator {
         window.tcmDropdownSettings = {
             vendorSlug: <?php echo json_encode($vendor_slug); ?>,
             vendorDetected: true,
-            visibleCategories: <?php echo json_encode(array_values($visible_categories)); ?>
+            visibleCategories: <?php echo json_encode(array_values($visible_categories)); ?>,
+            serviceConfig: <?php echo json_encode($dropdown_settings->get_service_config()); ?>
         };
         </script>
 

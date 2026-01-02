@@ -35,6 +35,8 @@ class TCM_Cart_Type_Meta {
 
         // Get existing values
         $order = get_term_meta($term->term_id, 'tcm_category_order', true);
+        $enable_consultation = get_term_meta($term->term_id, 'tcm_enable_consultation', true);
+        $enable_maintenance = get_term_meta($term->term_id, 'tcm_enable_maintenance', true);
         $enable_fleet = get_term_meta($term->term_id, 'tcm_enable_fleet_management', true);
 
         ?>
@@ -62,17 +64,41 @@ class TCM_Cart_Type_Meta {
 
         <tr class="form-field">
             <th scope="row">
-                <label for="tcm_enable_fleet_management">Fleet Management Option</label>
+                <label>Service Options</label>
             </th>
             <td>
-                <label>
-                    <input type="checkbox" name="tcm_enable_fleet_management" id="tcm_enable_fleet_management"
-                           value="1" <?php checked($enable_fleet, '1'); ?>>
-                    Enable "Fleet Management" option for this category in the dropdown
-                </label>
-                <p class="description">
-                    When enabled, users will see a "Fleet Management" option in the second dropdown
-                    when this category is selected.
+                <fieldset>
+                    <legend class="screen-reader-text">Service Options</legend>
+
+                    <label style="display: block; margin-bottom: 10px;">
+                        <input type="checkbox" name="tcm_enable_consultation" id="tcm_enable_consultation"
+                               value="1" <?php checked($enable_consultation, '1'); ?>>
+                        <strong>Enable "Consultation"</strong>
+                        <p class="description" style="margin: 5px 0 0 25px;">
+                            Shows "Consultation" option in the second dropdown. Leave unchecked to use global default.
+                        </p>
+                    </label>
+
+                    <label style="display: block; margin-bottom: 10px;">
+                        <input type="checkbox" name="tcm_enable_maintenance" id="tcm_enable_maintenance"
+                               value="1" <?php checked($enable_maintenance, '1'); ?>>
+                        <strong>Enable "Maintenance"</strong>
+                        <p class="description" style="margin: 5px 0 0 25px;">
+                            Shows "Maintenance" option in the second dropdown. Leave unchecked to use global default.
+                        </p>
+                    </label>
+
+                    <label style="display: block; margin-bottom: 10px;">
+                        <input type="checkbox" name="tcm_enable_fleet_management" id="tcm_enable_fleet_management"
+                               value="1" <?php checked($enable_fleet, '1'); ?>>
+                        <strong>Enable "Fleet Management"</strong>
+                        <p class="description" style="margin: 5px 0 0 25px;">
+                            Shows "Fleet Management" option in the second dropdown. Only appears when explicitly enabled.
+                        </p>
+                    </label>
+                </fieldset>
+                <p class="description" style="margin-top: 15px;">
+                    Configure service labels and URLs in <a href="<?php echo admin_url('admin.php?page=tcm-dropdown-service-config'); ?>">Service Configuration</a>.
                 </p>
             </td>
         </tr>
@@ -102,6 +128,20 @@ class TCM_Cart_Type_Meta {
             } else {
                 delete_term_meta($term_id, 'tcm_category_order');
             }
+        }
+
+        // Save consultation setting
+        if (isset($_POST['tcm_enable_consultation']) && $_POST['tcm_enable_consultation'] === '1') {
+            update_term_meta($term_id, 'tcm_enable_consultation', '1');
+        } else {
+            update_term_meta($term_id, 'tcm_enable_consultation', '0');
+        }
+
+        // Save maintenance setting
+        if (isset($_POST['tcm_enable_maintenance']) && $_POST['tcm_enable_maintenance'] === '1') {
+            update_term_meta($term_id, 'tcm_enable_maintenance', '1');
+        } else {
+            update_term_meta($term_id, 'tcm_enable_maintenance', '0');
         }
 
         // Save fleet management setting
