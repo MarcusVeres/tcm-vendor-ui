@@ -28,15 +28,18 @@ class TCM_Dropdown_Category_Settings {
      * Add admin menu
      */
     public function add_admin_menu() {
-        // Category Settings submenu
-        add_submenu_page(
+        // DEPRECATED: Category Settings submenu removed
+        // Category ordering and labels are now managed via WooCommerce category meta fields
+        // See: admin/class-tcm-cart-type-meta.php for meta field implementation
+
+        /* add_submenu_page(
             'tcm-dropdown-navigator',
             __('Category Settings', 'tcm-vendor-ui'),
             __('Category Settings', 'tcm-vendor-ui'),
             'manage_options',
             'tcm-dropdown-category-settings',
             array($this, 'render_admin_page')
-        );
+        ); */
     }
 
     /**

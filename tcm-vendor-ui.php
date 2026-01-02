@@ -3,7 +3,7 @@
  * Plugin Name: TCM Vendor UI
  * Plugin URI: https://tcmlimited.com
  * Description: Custom UI components for TCM vendor portal including category navigation and user-based styling
- * Version: 1.2.21
+ * Version: 1.2.24
  * Author: Marcus & Claude
  * Author URI: https://tcmlimited.com
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('TCM_VENDOR_UI_VERSION', '1.2.21');
+define('TCM_VENDOR_UI_VERSION', '1.2.24');
 define('TCM_VENDOR_UI_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_FILE', __FILE__);
@@ -115,21 +115,21 @@ class TCM_Vendor_UI {
                 $this->cart_type_meta = new TCM_Cart_Type_Meta($this);
             }
 
-            // Load Visibility Dashboard (read-only overview)
-            $visibility_dashboard_file = TCM_VENDOR_UI_PLUGIN_DIR . 'admin/class-tcm-dropdown-visibility-dashboard.php';
-            if (file_exists($visibility_dashboard_file)) {
-                require_once($visibility_dashboard_file);
-                $this->visibility_dashboard = new TCM_Dropdown_Visibility_Dashboard($this, $this->dropdown_settings);
-            }
-
-            // Load Dropdown Vendor Visibility admin
+            // Load Dropdown Vendor Visibility admin (MUST be loaded BEFORE dashboard to create parent menu)
             $dropdown_vendor_visibility_file = TCM_VENDOR_UI_PLUGIN_DIR . 'admin/class-tcm-dropdown-vendor-visibility.php';
             if (file_exists($dropdown_vendor_visibility_file)) {
                 require_once($dropdown_vendor_visibility_file);
                 $this->dropdown_vendor_visibility = new TCM_Dropdown_Vendor_Visibility($this, $this->dropdown_settings);
             }
 
-            // Load Dropdown Category Settings admin
+            // Load Visibility Dashboard (read-only overview - submenu under parent created above)
+            $visibility_dashboard_file = TCM_VENDOR_UI_PLUGIN_DIR . 'admin/class-tcm-dropdown-visibility-dashboard.php';
+            if (file_exists($visibility_dashboard_file)) {
+                require_once($visibility_dashboard_file);
+                $this->visibility_dashboard = new TCM_Dropdown_Visibility_Dashboard($this, $this->dropdown_settings);
+            }
+
+            // Load Dropdown Category Settings admin (deprecated but kept for backward compatibility)
             $dropdown_category_settings_file = TCM_VENDOR_UI_PLUGIN_DIR . 'admin/class-tcm-dropdown-category-settings.php';
             if (file_exists($dropdown_category_settings_file)) {
                 require_once($dropdown_category_settings_file);

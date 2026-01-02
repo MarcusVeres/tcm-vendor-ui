@@ -18,15 +18,16 @@ class TCM_Dropdown_Visibility_Dashboard {
     }
 
     /**
-     * Add admin page under WooCommerce menu
+     * Add admin page under TCM Dropdown Navigator menu
+     * Uses same slug as parent to replace auto-created submenu
      */
     public function add_admin_page() {
         add_submenu_page(
-            'woocommerce',
-            'Dropdown Visibility',
-            'Dropdown Visibility',
-            'manage_woocommerce',
-            'tcm-dropdown-visibility',
+            'tcm-dropdown-navigator',
+            'Visibility Dashboard',
+            'Visibility Dashboard',
+            'manage_options',
+            'tcm-dropdown-navigator', // Same slug as parent to replace auto-created submenu
             array($this, 'render_dashboard_page')
         );
     }

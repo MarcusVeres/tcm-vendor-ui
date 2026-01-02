@@ -28,26 +28,20 @@ class TCM_Dropdown_Vendor_Visibility {
      * Add admin menu
      */
     public function add_admin_menu() {
-        // Top-level menu
+        // Top-level menu (no default submenu page - visibility dashboard will be the only submenu)
         add_menu_page(
             __('TCM Dropdown Navigator', 'tcm-vendor-ui'),
             __('TCM Dropdown Navigator', 'tcm-vendor-ui'),
             'manage_options',
             'tcm-dropdown-navigator',
-            array($this, 'render_admin_page'),
+            '__return_null', // No callback - first submenu will be default
             'dashicons-arrow-down-alt2',
             30
         );
 
-        // Vendor Visibility submenu (same slug as parent to replace first item)
-        add_submenu_page(
-            'tcm-dropdown-navigator',
-            __('Vendor Visibility', 'tcm-vendor-ui'),
-            __('Vendor Visibility', 'tcm-vendor-ui'),
-            'manage_options',
-            'tcm-dropdown-navigator',
-            array($this, 'render_admin_page')
-        );
+        // DEPRECATED: Vendor Visibility submenu removed
+        // Visibility is now managed directly in WooCommerce category editor
+        // Dashboard moved to be submenu under this menu
     }
 
     /**

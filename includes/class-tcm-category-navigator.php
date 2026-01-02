@@ -184,11 +184,11 @@ class TCM_Category_Navigator {
         </script>
 
         <?php if (current_user_can('manage_options')): ?>
-        <div style="margin-top: 20px; padding: 10px 15px; background: #f8f9fa; border-left: 4px solid #0073aa; font-size: 12px; font-family: monospace;">
-            <strong style="color: #0073aa;">🔧 Admin Debug Info</strong><br>
-            <span style="color: #666;">Vendor:</span> <strong><?php echo esc_html($vendor_slug); ?></strong> |
-            <span style="color: #666;">Visible:</span> <strong><?php echo count($visible_categories); ?> categories</strong><br>
-            <span style="color: #999; font-size: 11px;"><?php echo esc_html(implode(', ', array_column($visible_categories, 'label'))); ?></span>
+        <div style="margin-top: 20px; padding: 10px 15px; background: #1e1e1e; border-left: 4px solid #0073aa; font-size: 12px; font-family: monospace; color: #fff;">
+            <strong style="color: #4a9eff;">🔧 Admin Debug Info</strong><br>
+            <span style="color: #aaa;">Vendor:</span> <strong style="color: #fff;"><?php echo esc_html($vendor_slug); ?></strong> |
+            <span style="color: #aaa;">Visible:</span> <strong style="color: #fff;"><?php echo count($visible_categories); ?> categories</strong><br>
+            <span style="color: #888; font-size: 11px;"><?php echo esc_html(implode(', ', array_column($visible_categories, 'label'))); ?></span>
         </div>
         <?php endif; ?>
         <?php
