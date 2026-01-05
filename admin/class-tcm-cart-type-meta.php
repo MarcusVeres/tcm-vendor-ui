@@ -131,24 +131,27 @@ class TCM_Cart_Type_Meta {
         }
 
         // Save consultation setting
+        // Checked = '1' (enabled), Unchecked = delete meta (use global default)
         if (isset($_POST['tcm_enable_consultation']) && $_POST['tcm_enable_consultation'] === '1') {
             update_term_meta($term_id, 'tcm_enable_consultation', '1');
         } else {
-            update_term_meta($term_id, 'tcm_enable_consultation', '0');
+            delete_term_meta($term_id, 'tcm_enable_consultation');
         }
 
         // Save maintenance setting
+        // Checked = '1' (enabled), Unchecked = delete meta (use global default)
         if (isset($_POST['tcm_enable_maintenance']) && $_POST['tcm_enable_maintenance'] === '1') {
             update_term_meta($term_id, 'tcm_enable_maintenance', '1');
         } else {
-            update_term_meta($term_id, 'tcm_enable_maintenance', '0');
+            delete_term_meta($term_id, 'tcm_enable_maintenance');
         }
 
         // Save fleet management setting
+        // Checked = '1' (enabled), Unchecked = delete meta (disabled - no global default)
         if (isset($_POST['tcm_enable_fleet_management']) && $_POST['tcm_enable_fleet_management'] === '1') {
             update_term_meta($term_id, 'tcm_enable_fleet_management', '1');
         } else {
-            update_term_meta($term_id, 'tcm_enable_fleet_management', '0');
+            delete_term_meta($term_id, 'tcm_enable_fleet_management');
         }
     }
 
