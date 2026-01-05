@@ -81,6 +81,12 @@ class TCM_Dropdown_Service_Config {
         <div class="wrap">
             <h1>Dropdown Navigator - Service Configuration</h1>
 
+            <p class="description" style="font-size: 14px; margin-bottom: 20px;">
+                This page configures the service options that appear in the second dropdown of the navigator
+                (Consultation, Maintenance, and Fleet Management). Set global labels and URLs here, then
+                enable/disable services per cart type in the category editor.
+            </p>
+
             <?php if ($updated): ?>
                 <div class="notice notice-success is-dismissible">
                     <p><strong>Service configuration saved successfully!</strong></p>
@@ -101,20 +107,20 @@ class TCM_Dropdown_Service_Config {
                 <?php wp_nonce_field('tcm_save_service_config', 'tcm_service_config_nonce'); ?>
                 <input type="hidden" name="action" value="tcm_save_service_config">
 
-                <table class="form-table">
+                <table class="form-table" role="presentation">
                     <tbody>
                         <?php foreach ($services as $service_key => $service): ?>
                             <tr>
-                                <th scope="row">
+                                <th scope="row" style="padding-left: 0;">
                                     <h3 style="margin: 0;">
                                         <?php echo esc_html(ucwords(str_replace('-', ' ', $service_key))); ?>
                                     </h3>
                                 </th>
-                                <td>
+                                <td style="padding-left: 20px;">
                                     <table class="widefat" style="max-width: 600px;">
                                         <tr>
-                                            <th style="width: 150px;">Label:</th>
-                                            <td>
+                                            <th style="width: 150px; padding-left: 12px;">Label:</th>
+                                            <td style="padding-left: 12px;">
                                                 <input type="text"
                                                        name="services[<?php echo esc_attr($service_key); ?>][label]"
                                                        value="<?php echo esc_attr($service['label']); ?>"
@@ -124,8 +130,8 @@ class TCM_Dropdown_Service_Config {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>URL:</th>
-                                            <td>
+                                            <th style="padding-left: 12px;">URL:</th>
+                                            <td style="padding-left: 12px;">
                                                 <input type="text"
                                                        name="services[<?php echo esc_attr($service_key); ?>][url]"
                                                        value="<?php echo esc_attr($service['url']); ?>"
@@ -136,8 +142,8 @@ class TCM_Dropdown_Service_Config {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>Default Visibility:</th>
-                                            <td>
+                                            <th style="padding-left: 12px;">Default Visibility:</th>
+                                            <td style="padding-left: 12px;">
                                                 <label>
                                                     <input type="checkbox"
                                                            name="services[<?php echo esc_attr($service_key); ?>][enabled_by_default]"

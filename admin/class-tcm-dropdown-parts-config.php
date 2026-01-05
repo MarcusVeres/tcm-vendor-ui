@@ -181,6 +181,12 @@ class TCM_Dropdown_Parts_Config {
         <div class="wrap">
             <h1>Dropdown Navigator - Parts Configuration</h1>
 
+            <p class="description" style="font-size: 14px; margin-bottom: 20px;">
+                This page controls which product categories appear as "Parts" options in the third dropdown
+                when a user selects a specific cart type and chooses "Parts" from the second dropdown.
+                Each cart type can have its own set of parts categories.
+            </p>
+
             <div class="notice notice-info">
                 <p><strong>How this works:</strong></p>
                 <ul style="margin-left: 20px;">

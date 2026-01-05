@@ -47,6 +47,12 @@ class TCM_Dropdown_Visibility_Dashboard {
         <div class="wrap">
             <h1>Dropdown Navigator - Category Visibility</h1>
 
+            <p class="description" style="font-size: 14px; margin-bottom: 20px;">
+                This dashboard controls which product categories appear in the first dropdown of the navigator for each vendor group.
+                Categories are automatically pulled from the <strong>"Cart Types"</strong> parent category in WooCommerce.
+                To add or remove categories from the dropdown, edit the category structure under <strong>Products → Categories</strong>.
+            </p>
+
             <div class="notice notice-info">
                 <p><strong>How to change visibility settings:</strong></p>
                 <ol>
