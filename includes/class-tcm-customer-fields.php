@@ -80,6 +80,36 @@ class TCM_Customer_Fields {
     }
 
     /**
+     * Get a user's store and carrier details for use elsewhere (e.g. orders)
+     * "Other (Please Specify)" is resolved to the custom carrier name
+     *
+     * @param int $user_id
+     * @return array Keys: store_number, carrier_name, carrier_number (empty strings if not set)
+     */
+    public function get_user_order_details($user_id) {
+        $details = array(
+            'store_number'   => '',
+            'carrier_name'   => '',
+            'carrier_number' => '',
+        );
+
+        if (!$user_id || !function_exists('get_field')) {
+            return $details;
+        }
+
+        $carrier_name = $this->get_value('carrier_name', $user_id);
+        if ($carrier_name === self::CARRIER_OTHER) {
+            $carrier_name = $this->get_value('carrier_name_custom', $user_id);
+        }
+
+        $details['store_number']   = $this->get_value('store_number', $user_id);
+        $details['carrier_name']   = $carrier_name;
+        $details['carrier_number'] = $this->get_value('carrier_number', $user_id);
+
+        return $details;
+    }
+
+    /**
      * Save a field value, using the ACF field key when available
      * so ACF's reference meta (_field_name => field_xxx) stays intact
      */
