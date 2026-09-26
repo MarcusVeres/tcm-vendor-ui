@@ -3,7 +3,7 @@
  * Plugin Name: TCM Vendor UI
  * Plugin URI: https://tcmlimited.com
  * Description: Custom UI components for TCM vendor portal including category navigation and user-based styling
- * Version: 1.2.32
+ * Version: 1.3.0
  * Author: Marcus & Claude
  * Author URI: https://tcmlimited.com
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('TCM_VENDOR_UI_VERSION', '1.2.32');
+define('TCM_VENDOR_UI_VERSION', '1.3.0');
 define('TCM_VENDOR_UI_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_FILE', __FILE__);
@@ -38,6 +38,7 @@ class TCM_Vendor_UI {
     private $user_css;
     private $category_navigator;
     private $vendor_styles;
+    private $customer_fields;
     private $vendor_admin;
     private $vendor_debug;
     private $dropdown_settings;
@@ -83,6 +84,13 @@ class TCM_Vendor_UI {
         if (file_exists($vendor_styles_file)) {
             require_once($vendor_styles_file);
             $this->vendor_styles = new TCM_Vendor_Styles($this);
+        }
+
+        // Load Customer Fields component (store number / carrier in My Account)
+        $customer_fields_file = TCM_VENDOR_UI_PLUGIN_DIR . 'includes/class-tcm-customer-fields.php';
+        if (file_exists($customer_fields_file)) {
+            require_once($customer_fields_file);
+            $this->customer_fields = new TCM_Customer_Fields($this);
         }
 
         // Load Vendor Admin component (admin only)
