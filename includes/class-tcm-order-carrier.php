@@ -108,10 +108,24 @@ class TCM_Order_Carrier {
             return array();
         }
 
+        return $this->build_rows(array(
+            'store_number'   => $order->get_meta(self::META_STORE_NUMBER),
+            'carrier_name'   => $order->get_meta(self::META_CARRIER_NAME),
+            'carrier_number' => $order->get_meta(self::META_CARRIER_NUMBER),
+        ));
+    }
+
+    /**
+     * Turn raw details into display rows
+     *
+     * @param array $details Keys: store_number, carrier_name, carrier_number
+     * @return array Label => value ("NOT SET" for blanks)
+     */
+    private function build_rows($details) {
         $rows = array(
-            __('Store Number', 'tcm-vendor-ui')           => $order->get_meta(self::META_STORE_NUMBER),
-            __('Carrier', 'tcm-vendor-ui')                => $order->get_meta(self::META_CARRIER_NAME),
-            __('Carrier Account Number', 'tcm-vendor-ui') => $order->get_meta(self::META_CARRIER_NUMBER),
+            __('Store Number', 'tcm-vendor-ui')           => isset($details['store_number']) ? $details['store_number'] : '',
+            __('Carrier', 'tcm-vendor-ui')                => isset($details['carrier_name']) ? $details['carrier_name'] : '',
+            __('Carrier Account Number', 'tcm-vendor-ui') => isset($details['carrier_number']) ? $details['carrier_number'] : '',
         );
 
         foreach ($rows as $label => $value) {
@@ -121,6 +135,17 @@ class TCM_Order_Carrier {
         }
 
         return $rows;
+    }
+
+    /**
+     * Print rows as label: value lines
+     *
+     * @param array $rows Label => value
+     */
+    private function print_rows($rows) {
+        foreach ($rows as $label => $value) : ?>
+            <strong><?php echo esc_html($label); ?>:</strong> <?php echo esc_html($value); ?><br>
+        <?php endforeach;
     }
 
     /**
@@ -156,21 +181,47 @@ class TCM_Order_Carrier {
 
     /**
      * Admin order screen, below the shipping address
+     * Shows two sections: details saved when the order was placed,
+     * and the customer's current profile values (which may have changed since)
      *
      * @param WC_Order $order
      */
     public function display_in_admin($order) {
-        $rows = $this->get_order_detail_rows($order);
-        if (empty($rows)) {
+        if (!is_a($order, 'WC_Order')) {
             return;
         }
+
+        // Section 1: saved at checkout (all NOT SET for orders placed before this feature)
+        $order_rows = $this->get_order_detail_rows($order);
+        $recorded   = !empty($order_rows);
+        if (!$recorded) {
+            $order_rows = $this->build_rows(array());
+        }
+
+        // Section 2: customer's current profile
+        $customer_id  = $order->get_customer_id();
+        $profile_rows = $customer_id ? $this->build_rows($this->customer_fields->get_user_order_details($customer_id)) : array();
+        $profile_link = $customer_id ? get_edit_user_link($customer_id) : '';
         ?>
         <div class="tcm-order-carrier">
-            <h3><?php esc_html_e('Store & Shipping', 'tcm-vendor-ui'); ?></h3>
+            <h3><?php esc_html_e('Store & Shipping (when order was placed)', 'tcm-vendor-ui'); ?></h3>
             <p>
-                <?php foreach ($rows as $label => $value) : ?>
-                    <strong><?php echo esc_html($label); ?>:</strong> <?php echo esc_html($value); ?><br>
-                <?php endforeach; ?>
+                <?php $this->print_rows($order_rows); ?>
+                <?php if (!$recorded) : ?>
+                    <em><?php esc_html_e('Not recorded: this order was placed before these details were saved at checkout.', 'tcm-vendor-ui'); ?></em>
+                <?php endif; ?>
+            </p>
+
+            <h3><?php esc_html_e("Store & Shipping (from user's current profile)", 'tcm-vendor-ui'); ?></h3>
+            <p>
+                <?php if ($customer_id) : ?>
+                    <?php $this->print_rows($profile_rows); ?>
+                    <?php if ($profile_link) : ?>
+                        <a href="<?php echo esc_url($profile_link); ?>"><?php esc_html_e('View customer profile →', 'tcm-vendor-ui'); ?></a>
+                    <?php endif; ?>
+                <?php else : ?>
+                    <em><?php esc_html_e('Guest order: no customer profile.', 'tcm-vendor-ui'); ?></em>
+                <?php endif; ?>
             </p>
         </div>
         <?php
