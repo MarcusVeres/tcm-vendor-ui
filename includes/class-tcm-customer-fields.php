@@ -61,7 +61,7 @@ class TCM_Customer_Fields {
      * Get carrier choices from the ACF field definition
      * Returns associative array: value => label
      */
-    private function get_carrier_choices() {
+    public function get_carrier_choices() {
         $field = acf_get_field('carrier_name');
 
         if (!empty($field['choices']) && is_array($field['choices'])) {
@@ -107,6 +107,50 @@ class TCM_Customer_Fields {
         $details['carrier_number'] = $this->get_value('carrier_number', $user_id);
 
         return $details;
+    }
+
+    /**
+     * Get a user's raw profile values (carrier is NOT resolved; "Other" stays "Other")
+     *
+     * @param int $user_id
+     * @return array Keys: store_number, carrier_name, carrier_name_custom, carrier_number
+     */
+    public function get_user_profile_values($user_id) {
+        $values = array(
+            'store_number'        => '',
+            'carrier_name'        => '',
+            'carrier_name_custom' => '',
+            'carrier_number'      => '',
+        );
+
+        if (!$user_id || !function_exists('get_field')) {
+            return $values;
+        }
+
+        foreach (array_keys($values) as $name) {
+            $values[$name] = $this->get_value($name, $user_id);
+        }
+
+        return $values;
+    }
+
+    /**
+     * Save store and carrier values to a user's profile
+     * Only keys present in $values are saved
+     *
+     * @param int   $user_id
+     * @param array $values Keys: store_number, carrier_name, carrier_name_custom, carrier_number
+     */
+    public function save_user_profile_values($user_id, $values) {
+        if (!$user_id || !function_exists('update_field')) {
+            return;
+        }
+
+        foreach (array('store_number', 'carrier_name', 'carrier_name_custom', 'carrier_number') as $name) {
+            if (array_key_exists($name, $values)) {
+                $this->set_value($name, $values[$name], $user_id);
+            }
+        }
     }
 
     /**

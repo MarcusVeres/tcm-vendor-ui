@@ -62,8 +62,16 @@ class TCM_Order_Carrier {
      * @param WC_Order $order
      */
     public function save_details_to_order($order) {
-        $details = $this->customer_fields->get_user_order_details($order->get_customer_id());
+        $this->save_details($order, $this->customer_fields->get_user_order_details($order->get_customer_id()));
+    }
 
+    /**
+     * Store details on the order (does not save the order)
+     *
+     * @param WC_Order $order
+     * @param array    $details Keys: store_number, carrier_name (already resolved from "Other"), carrier_number
+     */
+    public function save_details($order, $details) {
         $order->update_meta_data(self::META_STORE_NUMBER, $details['store_number']);
         $order->update_meta_data(self::META_CARRIER_NAME, $details['carrier_name']);
         $order->update_meta_data(self::META_CARRIER_NUMBER, $details['carrier_number']);

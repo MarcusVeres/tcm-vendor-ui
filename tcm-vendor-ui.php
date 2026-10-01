@@ -3,7 +3,7 @@
  * Plugin Name: TCM Vendor UI
  * Plugin URI: https://tcmlimited.com
  * Description: Custom UI components for TCM vendor portal including category navigation and user-based styling
- * Version: 1.3.2
+ * Version: 1.4.0
  * Author: Marcus & Claude
  * Author URI: https://tcmlimited.com
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('TCM_VENDOR_UI_VERSION', '1.3.2');
+define('TCM_VENDOR_UI_VERSION', '1.4.0');
 define('TCM_VENDOR_UI_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('TCM_VENDOR_UI_PLUGIN_FILE', __FILE__);
@@ -40,6 +40,7 @@ class TCM_Vendor_UI {
     private $vendor_styles;
     private $customer_fields;
     private $order_carrier;
+    private $checkout_fields;
     private $vendor_admin;
     private $vendor_debug;
     private $dropdown_settings;
@@ -99,6 +100,13 @@ class TCM_Vendor_UI {
         if (file_exists($order_carrier_file) && isset($this->customer_fields)) {
             require_once($order_carrier_file);
             $this->order_carrier = new TCM_Order_Carrier($this, $this->customer_fields);
+        }
+
+        // Load Checkout Fields component (required store/carrier fields on the block checkout)
+        $checkout_fields_file = TCM_VENDOR_UI_PLUGIN_DIR . 'includes/class-tcm-checkout-fields.php';
+        if (file_exists($checkout_fields_file) && isset($this->order_carrier)) {
+            require_once($checkout_fields_file);
+            $this->checkout_fields = new TCM_Checkout_Fields($this, $this->customer_fields, $this->order_carrier);
         }
 
         // Load Vendor Admin component (admin only)
