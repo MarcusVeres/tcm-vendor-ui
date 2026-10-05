@@ -17,11 +17,21 @@
 }
 
 .tcm-vendor-table .column-logo {
-    width: 30%;
+    /* No width: takes the space left over by the other columns */
+    width: auto;
 }
 
 .tcm-vendor-table .column-color {
     width: 11%;
+}
+
+/* Fixed-layout tables ignore min-width, so the width is set directly */
+.tcm-vendor-table .column-required {
+    width: 200px;
+}
+
+.tcm-vendor-table .column-required label {
+    white-space: nowrap;
 }
 
 .vendor-slug {
@@ -101,12 +111,12 @@
 
 /* Responsive adjustments */
 @media screen and (max-width: 1200px) {
-    .tcm-vendor-table .column-logo {
-        width: 25%;
+    .tcm-vendor-table .column-color {
+        width: 11%;
     }
 
-    .tcm-vendor-table .column-color {
-        width: 12.5%;
+    .tcm-vendor-table .column-required {
+        width: 150px;
     }
 }
 

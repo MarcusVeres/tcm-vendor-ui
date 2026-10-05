@@ -66,6 +66,8 @@ class TCM_Vendor_Admin {
                 'text_color' => sanitize_hex_color($settings['text_color']),
                 'button_bg' => sanitize_hex_color($settings['button_bg']),
                 'button_text' => sanitize_hex_color($settings['button_text']),
+                // Unchecked checkboxes aren't submitted, so missing means "not mandatory"
+                'carrier_required' => !empty($settings['carrier_required']) ? 1 : 0,
             );
         }
 
@@ -175,6 +177,7 @@ class TCM_Vendor_Admin {
                             <th class="column-color"><?php _e('Text Color', 'tcm-vendor-ui'); ?></th>
                             <th class="column-color"><?php _e('Button Background', 'tcm-vendor-ui'); ?></th>
                             <th class="column-color"><?php _e('Button Text', 'tcm-vendor-ui'); ?></th>
+                            <th class="column-required"><?php _e('Shipping Fields Mandatory', 'tcm-vendor-ui'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -247,6 +250,19 @@ class TCM_Vendor_Admin {
                                         class="tcm-color-picker"
                                     >
                                 </td>
+
+                                <!-- Store/carrier fields mandatory at checkout -->
+                                <td class="column-required">
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            name="tcm_vendor_styles[<?php echo esc_attr($slug); ?>][carrier_required]"
+                                            value="1"
+                                            <?php checked(!empty($settings['carrier_required'])); ?>
+                                        >
+                                        <?php _e('Mandatory', 'tcm-vendor-ui'); ?>
+                                    </label>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -267,6 +283,7 @@ class TCM_Vendor_Admin {
                     <li><?php _e('Logo images should be approximately 360x90 pixels for best results.', 'tcm-vendor-ui'); ?></li>
                     <li><?php _e('Color changes are applied immediately to all vendor pages.', 'tcm-vendor-ui'); ?></li>
                     <li><?php _e('The vendor slug determines the CSS class applied to the body.', 'tcm-vendor-ui'); ?></li>
+                    <li><?php _e('Checking "Shipping Fields Mandatory" makes Store Number, Carrier and Carrier Account Number MANDATORY at checkout for that vendor. Customers in that group cannot place an order without them. When unchecked, the fields are still shown at checkout but are optional.', 'tcm-vendor-ui'); ?></li>
                 </ul>
             </div>
         </div>

@@ -1,8 +1,9 @@
 <?php
 /**
  * TCM Checkout Fields
- * Adds required Store Number and Carrier fields to the block checkout
+ * Adds Store Number and Carrier fields to the block checkout
  * (shown in the "Additional order information" block).
+ * Mandatory only for vendors with "Shipping Fields Mandatory" checked in TCM Vendors.
  *
  * - Pre-filled from the customer's profile (ACF user fields)
  * - Values submitted at checkout are saved back to the profile
@@ -21,6 +22,7 @@ class TCM_Checkout_Fields {
     private $main_plugin;
     private $customer_fields;
     private $order_carrier;
+    private $vendor_styles;
 
     /**
      * Checkout field IDs (namespace/field)
@@ -41,10 +43,11 @@ class TCM_Checkout_Fields {
     const CONTACT_PHONE = '1.888.473.3629';
     const CONTACT_EMAIL = 'tcmservice@instorecorp.com';
 
-    public function __construct($main_plugin, $customer_fields, $order_carrier) {
+    public function __construct($main_plugin, $customer_fields, $order_carrier, $vendor_styles = null) {
         $this->main_plugin = $main_plugin;
         $this->customer_fields = $customer_fields;
         $this->order_carrier = $order_carrier;
+        $this->vendor_styles = $vendor_styles;
 
         // Requires WooCommerce's checkout fields API and ACF (for carrier choices and profile values)
         if (!function_exists('woocommerce_register_additional_checkout_field') || !function_exists('acf_get_field')) {
@@ -96,11 +99,44 @@ class TCM_Checkout_Fields {
     }
 
     /**
+     * Whether the store/carrier fields are mandatory for the current customer
+     * Set per vendor in TCM Vendors > "Shipping Fields Mandatory"
+     *
+     * @return bool
+     */
+    private function is_required_for_current_user() {
+        $user_id = get_current_user_id();
+        if (!$user_id || !$this->vendor_styles) {
+            return false;
+        }
+
+        // Vendor slug from the B2BKing customer group (same method as class-tcm-user-css.php)
+        $slug = '';
+        $group_id = get_user_meta($user_id, 'b2bking_customergroup', true);
+        if (!empty($group_id)) {
+            $group_name = get_the_title($group_id);
+            if (!empty($group_name)) {
+                $slug = sanitize_html_class(strtolower(str_replace(' ', '-', $group_name)));
+            }
+        }
+        if ($slug === '' && user_can($user_id, 'administrator')) {
+            $slug = 'administrator';
+        }
+
+        $vendors = $this->vendor_styles->get_vendors();
+
+        return $slug !== '' && !empty($vendors[$slug]['carrier_required']);
+    }
+
+    /**
      * Register the checkout fields
+     * Fields are always shown; they are only mandatory for vendors with the setting on.
      * show_in_order_confirmation is off because TCM_Order_Carrier already
      * shows these details on emails and the order pages
      */
     public function register_fields() {
+        $required = $this->is_required_for_current_user();
+
         $carrier_options = array();
         foreach ($this->customer_fields->get_carrier_choices() as $value => $label) {
             $carrier_options[] = array(
@@ -114,7 +150,7 @@ class TCM_Checkout_Fields {
             'label'                      => __('Store Number', 'tcm-vendor-ui'),
             'location'                   => 'order',
             'type'                       => 'text',
-            'required'                   => true,
+            'required'                   => $required,
             'show_in_order_confirmation' => false,
         ));
 
@@ -124,7 +160,7 @@ class TCM_Checkout_Fields {
             'location'                   => 'order',
             'type'                       => 'select',
             'options'                    => $carrier_options,
-            'required'                   => true,
+            'required'                   => $required,
             'show_in_order_confirmation' => false,
         ));
 
@@ -145,7 +181,7 @@ class TCM_Checkout_Fields {
             'label'                      => __('Carrier Account Number', 'tcm-vendor-ui'),
             'location'                   => 'order',
             'type'                       => 'text',
-            'required'                   => true,
+            'required'                   => $required,
             'show_in_order_confirmation' => false,
         ));
     }

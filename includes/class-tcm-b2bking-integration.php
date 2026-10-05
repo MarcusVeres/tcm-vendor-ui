@@ -134,6 +134,7 @@ class TCM_B2BKing_Integration {
                 'text_color' => '#ffffff',
                 'button_bg' => '#0BA04C',
                 'button_text' => '#ffffff',
+                'carrier_required' => 0,
             );
         }
 
@@ -145,6 +146,8 @@ class TCM_B2BKing_Integration {
             'text_color' => '#ffffff',
             'button_bg' => '#2A8EBF',
             'button_text' => '#ffffff',
+            // Store/carrier fields mandatory at checkout (Canadian Tire ships on their own carrier)
+            'carrier_required' => ($slug === 'canadian-tire') ? 1 : 0,
         );
     }
 
