@@ -32,6 +32,11 @@ class TCM_Order_Carrier {
      */
     const META_SAVED = '_tcm_order_details_saved';
 
+    /**
+     * True while WooCommerce is rendering an email's order details table
+     */
+    private $rendering_email = false;
+
     public function __construct($main_plugin, $customer_fields) {
         $this->main_plugin = $main_plugin;
         $this->customer_fields = $customer_fields;
@@ -55,6 +60,9 @@ class TCM_Order_Carrier {
         add_action('woocommerce_order_details_after_customer_details', array($this, 'display_in_account'), 10, 1);
 
         // Shipping is billed on the invoice, so show "TBD" instead of WooCommerce's "Free!" for $0 shipping
+        // Only in emails: order pages show the method name as the value and never say "Free!"
+        add_action('woocommerce_email_order_details', array($this, 'start_email_order_details'), 1);
+        add_action('woocommerce_email_order_details', array($this, 'end_email_order_details'), 999);
         add_filter('woocommerce_get_order_item_totals', array($this, 'show_shipping_tbd_on_order'), 10, 2);
         add_filter('woocommerce_cart_shipping_total', array($this, 'show_shipping_tbd_in_cart'), 10, 2);
         add_action('wp_enqueue_scripts', array($this, 'show_shipping_tbd_in_blocks'), 20);
@@ -79,16 +87,38 @@ class TCM_Order_Carrier {
     }
 
     /**
-     * Order totals (emails, order received page, My Account > View Order)
-     * WooCommerce's email template replaces the shipping value with "Free!"
-     * when it equals the method name; setting it to "TBD" prevents that.
+     * Track when an email's order details table is being rendered
+     */
+    public function start_email_order_details() {
+        $this->rendering_email = true;
+    }
+
+    public function end_email_order_details() {
+        $this->rendering_email = false;
+    }
+
+    /**
+     * Order totals in emails
+     * WooCommerce's newer email design shows the shipping method name in the row label
+     * ("Shipping: Shipping - To Be Determined on Invoice") and replaces the value with "Free!"
+     * for $0 shipping. Setting the value to "TBD" prevents that; the method name stays in the label.
+     *
+     * Not applied outside emails, or with the older email design: there the value
+     * is the method name itself, which must stay visible.
      *
      * @param array    $total_rows
      * @param WC_Order $order
      * @return array
      */
     public function show_shipping_tbd_on_order($total_rows, $order) {
-        if (isset($total_rows['shipping']) && is_a($order, 'WC_Order') && (float) $order->get_shipping_total() == 0) {
+        if (!$this->rendering_email || !isset($total_rows['shipping']) || !is_a($order, 'WC_Order')) {
+            return $total_rows;
+        }
+
+        $features_util = '\Automattic\WooCommerce\Utilities\FeaturesUtil';
+        $new_email_design = class_exists($features_util) && $features_util::feature_is_enabled('email_improvements');
+
+        if ($new_email_design && (float) $order->get_shipping_total() == 0) {
             $total_rows['shipping']['value'] = __('TBD', 'tcm-vendor-ui');
         }
 
