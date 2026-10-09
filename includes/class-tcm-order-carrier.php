@@ -53,6 +53,61 @@ class TCM_Order_Carrier {
         add_action('woocommerce_email_order_meta', array($this, 'display_in_email'), 20, 3);
         add_action('woocommerce_admin_order_data_after_shipping_address', array($this, 'display_in_admin'), 10, 1);
         add_action('woocommerce_order_details_after_customer_details', array($this, 'display_in_account'), 10, 1);
+
+        // Shipping is billed on the invoice, so show "TBD" instead of WooCommerce's "Free!" for $0 shipping
+        add_filter('woocommerce_get_order_item_totals', array($this, 'show_shipping_tbd_on_order'), 10, 2);
+        add_filter('woocommerce_cart_shipping_total', array($this, 'show_shipping_tbd_in_cart'), 10, 2);
+        add_action('wp_enqueue_scripts', array($this, 'show_shipping_tbd_in_blocks'), 20);
+    }
+
+    /**
+     * Block cart/checkout: their "Free" label is rendered in JavaScript,
+     * so replace the text through WordPress's i18n filter (cart and checkout pages only)
+     */
+    public function show_shipping_tbd_in_blocks() {
+        if (!function_exists('is_cart') || (!is_cart() && !is_checkout())) {
+            return;
+        }
+
+        wp_enqueue_script('wp-hooks');
+        wp_add_inline_script(
+            'wp-hooks',
+            'wp.hooks.addFilter("i18n.gettext_woocommerce", "tcm-vendor-ui/shipping-tbd", function(translation, text) {' .
+                'return (text === "Free" || text === "Free!") ? ' . wp_json_encode(__('TBD', 'tcm-vendor-ui')) . ' : translation;' .
+            '});'
+        );
+    }
+
+    /**
+     * Order totals (emails, order received page, My Account > View Order)
+     * WooCommerce's email template replaces the shipping value with "Free!"
+     * when it equals the method name; setting it to "TBD" prevents that.
+     *
+     * @param array    $total_rows
+     * @param WC_Order $order
+     * @return array
+     */
+    public function show_shipping_tbd_on_order($total_rows, $order) {
+        if (isset($total_rows['shipping']) && is_a($order, 'WC_Order') && (float) $order->get_shipping_total() == 0) {
+            $total_rows['shipping']['value'] = __('TBD', 'tcm-vendor-ui');
+        }
+
+        return $total_rows;
+    }
+
+    /**
+     * Cart shipping total (classic cart/checkout templates)
+     *
+     * @param string  $total
+     * @param WC_Cart $cart
+     * @return string
+     */
+    public function show_shipping_tbd_in_cart($total, $cart) {
+        if (is_a($cart, 'WC_Cart') && (float) $cart->get_shipping_total() == 0) {
+            return __('TBD', 'tcm-vendor-ui');
+        }
+
+        return $total;
     }
 
     /**
